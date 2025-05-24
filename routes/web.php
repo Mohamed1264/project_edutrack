@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Configuration\ConfigurationController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Configuration\SchoolWorkingDayController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\RedirectTo;
@@ -19,7 +21,8 @@ Route::middleware([Authenticate::class, CheckRole::class.':Admin'])->group(funct
     Route::get('/', [DashboardController::class , 'adminDashboard'])->name('admin.dashboard');
     Route::inertia('/profile', 'admin/Profile')->name('admin.profile');
     Route::inertia('/humanResources', 'admin/Indexes/HumanRessources')->name('humanResources');
-    Route::inertia('/configuration', 'admin/Indexes/Configuration')->name('configuration');
+    Route::get('/configuration', [ConfigurationController::class,'showConfiguration'])->name('configuration');
+    Route::post('/configuration/workingDays', [SchoolWorkingDayController::class,'save'])->name('save_working_days');
     Route::inertia('/schoolResources', 'admin/Indexes/SchoolRessources')->name('schoolResources');
     Route::inertia('/archive', 'admin/Indexes/History')->name('archive');
 });

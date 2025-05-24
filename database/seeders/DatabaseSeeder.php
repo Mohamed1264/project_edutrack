@@ -17,6 +17,8 @@ use Database\Seeders\AccountSeeder;
 use Database\Seeders\StructureUnitSeeder;
 use Database\Seeders\SchoolStructureUnitsSeeder;
 use Database\Seeders\SchoolStructureInstanceSeeder;
+use Database\Seeders\WeekDaySeeder;
+use Database\Seeders\TimeSlotTypeSeeder;
 
 
 class DatabaseSeeder extends Seeder
@@ -38,7 +40,9 @@ class DatabaseSeeder extends Seeder
             SchoolStructureInstanceSeeder::class,
             TeacherTypeSeeder::class,
             UserSeeder::class,
-            AccountSeeder::class
+            AccountSeeder::class,
+            WeekDaySeeder::class,
+            TimeSlotTypeSeeder::class,
         ]);
     }
 }

@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
 use App\Models\School;
 use App\Models\WeekDay;
 use App\Models\TimeSlotsMode;
-class SchoolWorkingDay extends Model
+use Illuminate\Database\Eloquent\Relations\Pivot;
+class SchoolWorkingDay extends Pivot
 {
-    /** @use HasFactory<\Database\Factories\SchoolWorkingDayFactory> */
-    use HasFactory;
+  
+    protected $table = 'school_working_days';
     protected $fillable = [
         'school_id',
         'day_id',
@@ -18,15 +19,6 @@ class SchoolWorkingDay extends Model
         'note'
     ];
 
-    public function school()
-    {
-        return $this->belongsTo(School::class,'school_id');
-    }
-
-    public function day()
-    {
-        return $this->belongsTo(WeekDay::class, 'day_id');
-    }
 
     public function mode()
     {
