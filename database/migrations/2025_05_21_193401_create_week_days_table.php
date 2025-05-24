@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('week_days', function (Blueprint $table) {
             $table->id();
             $table->string('day_name', 15)->unique();
-            $table->string('short_name', 3)->unique();
-            $table->boolean('is_weekend')->default(false);
             $table->timestamps();
         });
     }

@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user()?->user,
                 'role'=>$request->user()?->user->role,
+                'school'=>$request->user()?->school,
             ],
             'routeName'=>$request->route()->getName(),
             'ziggy' => fn (): array => [

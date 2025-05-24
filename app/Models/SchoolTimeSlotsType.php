@@ -9,4 +9,6 @@ class SchoolTimeSlotsType extends Model
 {
     /** @use HasFactory<\Database\Factories\SchoolTimeSlotsTypeFactory> */
     use HasFactory;
+
+    
 }

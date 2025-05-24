@@ -28,6 +28,7 @@ use App\Models\ClassSession;
 use App\Models\SchoolJustificationReason;
 use App\Models\Absence;
 use App\Models\SchoolStructureInstance;
+use App\Models\WeekDay;
 class School extends Model
 {
     /** @use HasFactory<\Database\Factories\SchoolFactory> */
@@ -111,14 +112,27 @@ class School extends Model
     {
         return $this->hasMany(Term::class,'school_id');
     }
+
     public function workingDays()
     {
-        return $this->hasMany(SchoolWorkingDay::class,'school_id');
+        return $this->belongsToMany(WeekDay::class, 'school_working_days', 'school_id', 'day_id')
+            ->using(SchoolWorkingDay::class)
+            ->withPivot('mode_id', 'note') // include additional columns
+            ->withTimestamps();
     }
 
-    public function timeSlotsMoes()
+
+    public function timeSlotsModes()
     {
         return $this->hasMany(TimeSlotsMode::class,'school_id');
+    }
+    public function activeMode(){
+        return  DB::table('time_slots_modes')
+        ->join('schools', 'schools.id', '=', 'time_slots_modes.school_id')
+        ->where('time_slots_modes.id', $this->id)
+        ->where('time_slots_modes.is_active',true)
+        ->select('time_slots_modes.*')
+        ->get()->first();
     }
 
     public function timeSlotTypes()

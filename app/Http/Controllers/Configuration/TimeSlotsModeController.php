@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class TimeSlotsModelController extends Controller
+class TimeSlotsModeController extends Controller
 {
     //
 }
