@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { successNotify } from "../../../../Components/Common/Toast";
 import { groups } from "../../../../Data/Users";
 import { TableProvider } from '../../../../utils/Context/TableContext';
+import SchoolResourcesLayout from '../../../../layouts/SchoolResourcesLayout';
 
 
 export default function Groups(){
@@ -64,7 +65,8 @@ export default function Groups(){
  
   
    return (
-    <div className="py-6 px-8">
+    <SchoolResourcesLayout>
+     <div className="py-6 px-8">
       <ToastContainer pauseOnHover={false} closeButton={false} />
         <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-50 mb-6">
             Groups
@@ -80,5 +82,8 @@ export default function Groups(){
         </TableProvider>
       
      </div>
+
+    </SchoolResourcesLayout>
+   
    );
   };

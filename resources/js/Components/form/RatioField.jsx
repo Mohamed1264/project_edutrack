@@ -32,3 +32,4 @@ export const RatioField = ({ name, label, items, handleChange, value }) => {
       </div>
     );
   };
+

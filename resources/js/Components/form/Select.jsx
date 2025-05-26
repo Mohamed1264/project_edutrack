@@ -28,18 +28,19 @@ export const Select = ({label ,handleChange , placeholder ,name , value,items}) 
         </FieldContainer>
     )
 }
-export const SelectInput = ({handleChange , placeholder , value,items}) =>{
-  const [selectMenu, setSelectMenu] = useState(false)
+export const SelectInput = ({handleChange , placeholder , value,items,labelKey,valueKey,name}) =>{
+    const selectedValueLabel = items.find(item => item[valueKey]== value) 
+    const [selectMenu, setSelectMenu] = useState(false)
       const selectRef = useRef(null)
       useClickOutSide(()=>setSelectMenu(false),selectRef);
-      const handleSelect = (item)=>{
+      const handleSelect = (value)=>{
  
-        handleChange(item)
+        handleChange(name,value)
         setSelectMenu(false)
       }
      
     return (
-      <div className="relative z-50 min-w-56 w-full" ref={selectRef}>
+      <div className="relative z-10 min-w-56 w-full flex-1" ref={selectRef}>
       <button
           onClick={() => setSelectMenu(!selectMenu)}
           type="button"
@@ -51,7 +52,7 @@ export const SelectInput = ({handleChange , placeholder , value,items}) =>{
           `}
       >
           <div className="flex items-center ">
-              {value || placeholder}
+              {!selectedValueLabel  ? placeholder : selectedValueLabel[labelKey]}
           </div>
           <ChevronDown className={`w-4 h-4 duration-500 ${selectMenu ? 'rotate-180' : ''}`} />
       </button>
@@ -71,11 +72,11 @@ export const SelectInput = ({handleChange , placeholder , value,items}) =>{
               {
                 items.map((item , index) => (
                   <button
-                      key={item.option}
+                      key={item[labelKey]}
                       type="button"
-                      onClick={() => handleSelect(item.value)}
+                      onClick={() => handleSelect(item[valueKey])}
                       className={`w-full px-4 py-2 text-left text-sm font-medium
-                                 ${value === item.value ? 
+                                 ${value === item[valueKey] ? 
                                   'bg-purple-100 dark:bg-purple-600 text-purple-700 dark:text-white hover:bg-purple-200 dark:hover:bg-purple-700' 
                                   : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
                                   } 
@@ -83,7 +84,7 @@ export const SelectInput = ({handleChange , placeholder , value,items}) =>{
                                 ${index === items.length - 1 ? 'rounded-b-lg' : ''}
                       `}
                   >
-                      {item.option}
+                      {item[labelKey]}
                   </button>
               ))}
           </div>

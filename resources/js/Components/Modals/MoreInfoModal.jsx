@@ -4,7 +4,7 @@ import { useModalContext } from '../../utils/Context/ModalContext'
 import { Expand, Minimize2, XOctagon, Edit, Printer } from 'lucide-react'
 import DisplaySchedule from '../Schedule/DisplaySchedule'
 import { teacheSscheduleData } from '../../Data/ScheduleData' 
-import { Link } from 'react-router-dom'
+import { Link } from '@inertiajs/react'
 export default function MoreInfoModal(){
     
     
@@ -73,7 +73,7 @@ export default function MoreInfoModal(){
                         <div className="flex items-center justify-end gap-3 px-6 py-1 border-t border-gray-200 dark:border-gray-700">
                             {selectedItem?.matricule && (
                                 <Link 
-                                    to={`/schoolResources/schedule/${selectedItem?.matricule}`}
+                                    href={`/schoolResources/schedule/${selectedItem?.matricule}`}
                                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 
                                         rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 
                                         focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"

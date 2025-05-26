@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@inertiajs/react";
 import { useModalContext } from "../../utils/Context/ModalContext";
 import { CalendarFold, Edit, RefreshCcw, SquareArrowOutUpRight, Trash2 } from "lucide-react";
 
@@ -33,7 +33,7 @@ function DropDownMenu({ style, config }) {
         {linksKeys.map(linkKey => (
           <Link
             key={linkKey}
-            to={`${path}/${links?.[linkKey]}/${selectedItem?.[key]}`}
+            href={`${path}/${links?.[linkKey]}/${selectedItem?.[key]}`}
             className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200
               text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20
               hover:text-purple-700 dark:hover:text-purple-400"

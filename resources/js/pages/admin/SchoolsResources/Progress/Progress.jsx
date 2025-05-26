@@ -3,6 +3,7 @@ import {users,groups} from '../../../../Data/Users'
 import SearchBar from '../../../../Components/Common/SearchBar'
 import { useState } from 'react'
 import { Filter } from 'lucide-react'
+import SchoolResourcesLayout from '../../../../layouts/SchoolResourcesLayout'
 export default function Progress () { 
     const [search, setSearch] = useState('')
     const [filterBy, setFilterBy] = useState('Teachers')
@@ -17,7 +18,8 @@ export default function Progress () {
    
 
     return (
-        <div className='max-w-6xl mx-auto'>
+        <SchoolResourcesLayout>
+         <div className='max-w-6xl mx-auto'>
             <div className='flex items-center justify-between px-3 py-2 mb-4'>
                 <h1 className='text-xl text-gray-700 dark:text-gray-50 font-bold'>Track Progress</h1>
                 <div className='flex items-center gap-4'>
@@ -57,5 +59,8 @@ export default function Progress () {
                 }
             </div>
         </div>
+
+        </SchoolResourcesLayout>
+       
     )
 }

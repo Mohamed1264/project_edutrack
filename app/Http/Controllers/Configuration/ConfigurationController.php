@@ -14,14 +14,19 @@ class ConfigurationController extends Controller
     public function showConfiguration (){
         $school = Auth::user()->school;
         $days = WeekDay::all();
-        $timeSlotsTypes = $school->timeSlotTypes->pluck('time_slot_type');
-
+        $timeSlotsTypes = $school->timeSlotTypes->map(function ($item) {
+            return $item->only(['id', 'time_slot_type']);
+        });
         $schoolWorkingDaysIds = $school->workingDays->pluck('id');
-
+        $activeModeId = $school->activeMode()->id;
+        $timeSlots = $school->activeTimeSlots();
+        $timeSlotsByTypes = $school->timeSlotsGroupedByType();
+     
         return Inertia::render('admin/Indexes/Configuration',[
             'days'=>$days,
             'workingDaysIds'=>$schoolWorkingDaysIds,
-            'timeSlotsTypes'=>$timeSlotsTypes
+            'timeSlotsTypes'=>$timeSlotsTypes,
+            'timeSlotByTypes'=>$timeSlotsByTypes,
         ]);
     }
 }

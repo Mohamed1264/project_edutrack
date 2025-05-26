@@ -1,10 +1,11 @@
 import {filieres} from '../../../../Data/Users'
 import TableContainer from '../../../../Components/table/TableContainer'
-import { ModalProvider } from "../../../../utils/Context/ModalContext";
+import { ModalProvider } from '../../../../utils/Context/ModalContext';
 import { ToastContainer } from "react-toastify";
 import { useEffect } from "react";
 import { successNotify } from "../../../../Components/Common/Toast";
 import { TableProvider } from '../../../../utils/Context/TableContext';
+import SchoolResourcesLayout from '../../../../layouts/SchoolResourcesLayout';
 
 
   export default function Teachers(){
@@ -60,20 +61,23 @@ import { TableProvider } from '../../../../utils/Context/TableContext';
     
   
    return (
-    <div className="py-6 px-8">
-      <ToastContainer pauseOnHover={false} closeButton={false} />
-        <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-50 mb-6">
-          Filieres
-        </h1>
-        <TableProvider>
-            <ModalProvider>
-                <TableContainer 
-                    data={filieres}
-                    tableConfig = {config}
-                    title={'Filieres'}
-                />
-            </ModalProvider>
-        </TableProvider>
-     </div>
+    <SchoolResourcesLayout>
+      <div className="py-6 px-8">
+        <ToastContainer pauseOnHover={false} closeButton={false} />
+          <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-50 mb-6">
+            Filieres
+          </h1>
+          <TableProvider>
+              <ModalProvider>
+                  <TableContainer 
+                      data={filieres}
+                      tableConfig = {config}
+                      title={'Filieres'}
+                  />
+              </ModalProvider>
+          </TableProvider>
+      </div>
+    </SchoolResourcesLayout>
+   
    );
   };

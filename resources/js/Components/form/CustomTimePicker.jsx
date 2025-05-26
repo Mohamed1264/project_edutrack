@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Clock } from 'lucide-react'
 
-const CustomTimePicker = ({ value, onChange, className = '', placeholder }) => {
+const CustomTimePicker = ({ value, onChange, className = '', placeholder,name }) => {
     const [isOpen, setIsOpen] = useState(false)
     const [selectedHour, setSelectedHour] = useState('00')
     const [selectedMinute, setSelectedMinute] = useState('00')
@@ -33,12 +33,12 @@ const CustomTimePicker = ({ value, onChange, className = '', placeholder }) => {
 
     const handleHourChange = (hour) => {
         setSelectedHour(hour)
-        onChange(`${hour}:${selectedMinute}`)
+        onChange(name,`${hour}:${selectedMinute}`)
     }
 
     const handleMinuteChange = (minute) => {
         setSelectedMinute(minute)
-        onChange(`${selectedHour}:${minute}`)
+        onChange(name,`${selectedHour}:${minute}`)
     }
 
     const handleInputChange = (e) => {
@@ -47,7 +47,7 @@ const CustomTimePicker = ({ value, onChange, className = '', placeholder }) => {
             const [hours, minutes] = newValue.split(':')
             setSelectedHour(hours)
             setSelectedMinute(minutes)
-            onChange(newValue)
+            onChange(name,newValue)
         }
     }
 
@@ -63,7 +63,7 @@ const CustomTimePicker = ({ value, onChange, className = '', placeholder }) => {
             onClick={() => setIsOpen(!isOpen)}
         >
             {isOpen && (
-                <div className="absolute bottom-full left-0 mb-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                <div className="absolute bottom-full left-0 mb-1 z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
                     <div className="grid grid-cols-2 divide-x divide-gray-200 dark:divide-gray-700">
                         {/* Hours */}
                         <div className="max-h-48 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">

@@ -21,7 +21,7 @@ public function schools()
 
 public function timeSlots()
 {
-    return $this->hasMany(TimeSlot::class,);
+    return $this->hasMany(TimeSlot::class,'type_id');
 }
 
 
