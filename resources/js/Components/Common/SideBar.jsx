@@ -189,7 +189,7 @@ export default function SideBar({ darkMode, setDarkMode }) {
                 key={link.pageName}
                 className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm 2xl:text-xl
                   transition-all duration-200 group
-                  ${(link.routeName === routeName )
+                  ${(link.routeName === routeName  || routeName.includes(link.routeName))
                     ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-800/50 dark:text-indigo-300 shadow-sm' 
                     : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                   }

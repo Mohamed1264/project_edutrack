@@ -1,30 +1,32 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-
+import { Outlet, useLocation } from "react-router-dom";
+import { usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react'
+import { route } from 'ziggy-js';
 
 const links = [
     {
         name: "Home",
-        link: "/schoolResources"
+        route_name: "schoolResources"
     },
     {
         name: "Filieres",
-        link: "/schoolResources/filieres"
+        route_name: "schoolResources.fields"
     },
     {
         name: "Groups",
-        link: "/schoolResources/groups"
+        route_name: "schoolResources.groups"
     },
     {
         name: "Rooms",
-        link: "/schoolResources/rooms"
+        route_name: "schoolResources.rooms"
     },
     {
         name: "Schedules",
-        link: "/schoolResources/schedules"
+        route_name: "schoolResources.schedules.home"
     },
     {
         name: "Progress",
-        link: "/schoolResources/progress"
+        route_name: "schoolResources.progress.index"
     },
     
         

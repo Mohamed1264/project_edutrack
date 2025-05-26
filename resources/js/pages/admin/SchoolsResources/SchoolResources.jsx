@@ -10,8 +10,9 @@ import {
   Plus,
 
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from '@inertiajs/react';
 import DonutCHart from '../../../Components/Charts/DonutChart';
+import SchoolResourcesLayout from '../../../layouts/SchoolResourcesLayout';
 
 const SchoolResources = () => {
   // Mock data - replace with actual data from your backend
@@ -99,7 +100,8 @@ const SchoolResources = () => {
 
 
   return (
-    <div className="py-6 px-8 space-y-6 max-w-screen-2xl mx-auto xl:space-y-10">
+    <SchoolResourcesLayout>
+        <div className="py-6 px-8 space-y-6 max-w-screen-2xl mx-auto xl:space-y-10">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -186,7 +188,7 @@ const SchoolResources = () => {
 
       {/* Quick Actions Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link to="/schoolResources/addFiliere" className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer">
+        <Link href="/schoolResources/addFiliere" className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer">
           <div className="flex items-start gap-4">
             <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/50">
               <Plus className="size-6 2xl:size-9 text-blue-600 dark:text-blue-400" />
@@ -198,7 +200,7 @@ const SchoolResources = () => {
           </div>
         </Link>
 
-        <Link to="/schoolResources/schedules" className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer">
+        <Link href="/schoolResources/schedules" className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer">
           <div className="flex items-start gap-4">
             <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/50">
               <Calendar className="size-6 2xl:size-9 text-purple-600 dark:text-purple-400" />
@@ -210,7 +212,7 @@ const SchoolResources = () => {
           </div>
         </Link>
 
-        <Link to="/schoolResources/rooms" className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer">
+        <Link href="/schoolResources/rooms" className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer">
           <div className="flex items-start gap-4">
             <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-900/50">
               <Building2 className="size-6 2xl:size-9 text-orange-600 dark:text-orange-400" />
@@ -244,6 +246,9 @@ const SchoolResources = () => {
         </div>
       </div>
     </div>
+
+    </SchoolResourcesLayout>
+
   );
 };
 

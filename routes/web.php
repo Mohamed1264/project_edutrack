@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Configuration\ConfigurationController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Configuration\SchoolWorkingDayController;
+use App\Http\Controllers\Configuration\TimeSlotsController;
+use App\Http\Controllers\Schedules\ScheduleController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\RedirectTo;
@@ -23,7 +25,20 @@ Route::middleware([Authenticate::class, CheckRole::class.':Admin'])->group(funct
     Route::inertia('/humanResources', 'admin/Indexes/HumanRessources')->name('humanResources');
     Route::get('/configuration', [ConfigurationController::class,'showConfiguration'])->name('configuration');
     Route::post('/configuration/workingDays', [SchoolWorkingDayController::class,'save'])->name('save_working_days');
-    Route::inertia('/schoolResources', 'admin/Indexes/SchoolRessources')->name('schoolResources');
+    Route::post('/configuration/timeSlots', [TimeSlotsController::class,'save'])->name('save_time_slots');
+    Route::prefix('schoolResources')->group(function () {
+        Route::inertia('/', 'admin/SchoolsResources/SchoolResources')->name('schoolResources');
+        Route::inertia('/groups', 'admin/SchoolsResources/Groups/Groups')->name('schoolResources.groups');
+        Route::inertia('/fields', 'admin/SchoolsResources/Filieres/Filieres')->name('schoolResources.fields');
+        Route::inertia('/schedules', 'admin/SchoolsResources/Schedules/schedulePages/Home')->name('schoolResources.schedules.index');
+        Route::get('/schedules/{type}', [ScheduleController::class ,'showSchedulesList'])->name('schoolResources.schedules.list');
+        Route::get('/schedules/{type}/{id}', [ScheduleController::class ,'getSchedule'])->name('schoolResources.schedules.schedule');
+        Route::inertia('/rooms', 'admin/SchoolsResources/Rooms')->name('schoolResources.rooms');
+        Route::inertia('/progress', 'admin/SchoolsResources/Progress/Progress')->name('schoolResources.progress.index');
+
+        // Route::inertia('/options', 'admin/Indexes/SchoolRessources')->name('schoolResources.options');
+        // Route::inertia('/levels', 'admin/Indexes/SchoolRessources')->name('schoolResources.levels');
+    });
     Route::inertia('/archive', 'admin/Indexes/History')->name('archive');
 });
 
