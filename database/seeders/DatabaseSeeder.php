@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\StructureUnit;
-use App\Models\User;
+
 use Database\Factories\SchoolFactory;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -19,6 +18,12 @@ use Database\Seeders\SchoolStructureUnitsSeeder;
 use Database\Seeders\SchoolStructureInstanceSeeder;
 use Database\Seeders\WeekDaySeeder;
 use Database\Seeders\TimeSlotTypeSeeder;
+use Database\Seeders\TimeSlotsModeSeeder;
+use Database\Seeders\TimeSlotSeeder;
+use Database\Seeders\RoomSeeder;
+use Database\Seeders\SchoolYearSeeder;
+use Database\Seeders\TermTypeSeeder;
+use Database\Seeders\TermSeeder;
 
 
 class DatabaseSeeder extends Seeder
@@ -43,6 +48,12 @@ class DatabaseSeeder extends Seeder
             AccountSeeder::class,
             WeekDaySeeder::class,
             TimeSlotTypeSeeder::class,
+            TimeSlotsModeSeeder::class,
+            TimeSlotSeeder::class,
+            RoomSeeder::class,
+            SchoolYearSeeder::class,
+            TermTypeSeeder::class,
+            TermSeeder::class,
         ]);
     }
 }

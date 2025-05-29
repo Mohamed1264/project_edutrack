@@ -14,7 +14,6 @@ use App\Models\Teach;
 use App\Models\Group;
 use App\Models\Guardian;
 use App\Models\StudentPath;
-use App\Models\SessionTemplate;
 use App\Models\Absence;
 
 class Account extends Model implements AuthenticatableContract
@@ -72,10 +71,10 @@ public function guardians()
     {
         return $this->hasOne(StudentPath::class, 'student_account_id')->where('is_active', true);
     }
-    public function sessionTemplates()
-{
-    return $this->HasMany(SessionTemplate::class,'teacher_id');
-}
+    public function schedules (){
+        return $this->hasMany(Schedule::class,'teacher_id');
+    }
+
 
 public function absences (){
     return $this->hasMany(Absence::class,'student_id');

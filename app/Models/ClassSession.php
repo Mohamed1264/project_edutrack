@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\School;
 use App\Models\SessionInstance;
 use App\Models\Absence;
+use App\Models\Schedule;
 class ClassSession extends Model
 {
     /** @use HasFactory<\Database\Factories\ClassSessionFactory> */
@@ -17,8 +18,8 @@ class ClassSession extends Model
     public function school(){
         return $this->belongsTo(School::class);
     }
-    public function sessionInstance(){
-        return $this->belongsTo(SessionInstance::class,'session_instance_id');
+    public function schedule(){
+        return $this->belongsTo(Schedule::class,'schedule_id');
     }
     public function absences(){
         return $this->hasMany(Absence::class,'session_id');

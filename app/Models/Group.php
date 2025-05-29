@@ -9,7 +9,7 @@ use App\Models\SchoolStructureInstance;
 use App\Models\Teach;
 use App\Models\Account;
 use App\Models\StudentPath;
-use App\Models\SessionTemplate;
+use App\Models\Schedule;
 
 class Group extends Model
 {
@@ -55,13 +55,14 @@ public function studentPaths()
 {
     return $this->hasMany(StudentPath::class);
 }
+public function schedules()
+{
+    return $this->hasMany(Schedule::class);
+}
 
 public function activeStudents()
 {
     return $this->hasMany(StudentPath::class)->where('is_active', true);
 }
-public function sessionTemplates()
-{
-    return $this->HasMany(SessionTemplate::class,);
-}
+
 }

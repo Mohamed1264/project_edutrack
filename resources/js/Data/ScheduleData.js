@@ -331,14 +331,14 @@ export const sessions = [
 export const years = [2024,2025]
 
 export const initialValues = {
-    idSession: null,
-    teacher_name: '',
-    group_name: '',
-    room_name: '',
-    start_time: '',
-    end_time: '',
-    day_of_week: '',
-    status: 'active',
+    id: null,
+    teacher_id: '',
+    group_id: '',
+    room_id: '',
+    time_slot_id : '',
+    day_id: '',
+    term_id : '',
+    status: 'Active',
     type : 'Presentiel',
     is_temporary: false,
     start_date: null,

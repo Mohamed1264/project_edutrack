@@ -27,6 +27,7 @@ class User extends Model
     public function accounts(){
         return $this->HasMany(Account::class);
     }
+    
 
     public function hasRole($role_name){
         return $this->role && $this->role->role_name == $role_name;

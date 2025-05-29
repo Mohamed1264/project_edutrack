@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\School;
 use App\Models\SchoolYear;
 use App\Models\TermType;
-use App\Models\ScheduleVersion;
-use App\Models\SessionInstance;
+use App\Models\Schedule;
 use App\Models\Absence;
 class Term extends Model
 {
@@ -39,14 +38,11 @@ class Term extends Model
         return $this->belongsTo(TermType::class , 'term_type_id');
     }
 
-    public function scheduleVersions()
+    public function schedules()
 {
-    return $this->HasMany(ScheduleVersion::class,);
+    return $this->HasMany(Schedule::class);
 }
-public function sessionInstances()
-{
-    return $this->HasMany(SessionInstance::class,'term_id');
-}
+
 
 public function absences (){
     return $this->hasMany(Absence::class,'term_id');

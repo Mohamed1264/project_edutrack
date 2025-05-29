@@ -11,11 +11,10 @@ use Carbon\Carbon;
 class TimeSlotsController extends Controller
 {
     public function save (Request $request){
-        $sessionsInfo = $request->sessionsInfo;
-        $type_id =$sessionsInfo['type_id'];
-        $start_time = Carbon::parse($sessionsInfo['start_time']);
-        $end_time = Carbon::parse($sessionsInfo['end_time']);
-        $duration = (int)$sessionsInfo['session_duration'];
+        $type_id = $request->type_id;
+        $start_time =Carbon::parse($request->start_time);
+        $end_time =Carbon::parse($request->end_time) ;
+        $duration = $request->session_duration;
         $school = Auth::user()->school;
         $activeModeId = $school->activeMode()->id;
         $slots = [];
@@ -36,6 +35,17 @@ class TimeSlotsController extends Controller
             $start_time = $slotEnd;
         }
         TimeSlot::insert($slots);
+        return redirect()->back();
            
+    }
+
+    public function delete (Request $request){
+               $timeSlotsTypeId = $request->type_id;
+         $school = Auth::user()->school;
+         $activeModeId = $school->activeMode()->id;
+       
+         $school->timeSlots()->where('mode_id',$activeModeId)->where('type_id',$timeSlotsTypeId)->delete();
+         return redirect()->back();
+        
     }
 }

@@ -4,29 +4,29 @@ import { initialValues,days, sessions } from "../../Data/ScheduleData";
 
 
 const info = {
-    'teacher' : {
-        titleKey : 'group_name',
-        sousTitleKey : 'room_name',
-        key :'teacher_name'
+    'teachers' : {
+        titleKey : 'group',
+        sousTitleKey : 'room',
+        key :'teacher'
     },
-    'group' : {
-        titleKey : 'teacher_name',
-        sousTitleKey : 'room_name',
-        key :'group_name'
+    'groups' : {
+        titleKey : 'teacher',
+        sousTitleKey : 'room',
+        key :'group'
     },
-    'room' : {
-        titleKey : 'teacher_name',
-        sousTitleKey : 'group_name',
-        key : 'roomName'
+    'rooms' : {
+        titleKey : 'teacher',
+        sousTitleKey : 'group',
+        key : 'room'
     }
 }
 
 const RenderSessionCell = ({day, dayIndex, session, sessionIndex,schedule,handleRowRightClick,entity,entityName}) => {
     const matchingSessions = schedule.find(s => 
-        s.day_of_week === day && session.start === s.start_time
+        s.raw.day_id === day.id && session.id === s.raw.time_slot_id 
     );
     const {titleKey,sousTitleKey,key} = info[entity]
-    const isPresentiel = matchingSessions?.type === 'Presentiel' 
+    const isPresentiel = matchingSessions?.raw.status === 'Active' 
     
 
     
@@ -44,14 +44,14 @@ const RenderSessionCell = ({day, dayIndex, session, sessionIndex,schedule,handle
         <div 
             key={`${dayIndex}-${sessionIndex}`} 
             className={getClassName(sessionIndex,dayIndex,matchingSessions?.idSession,entity)}
-            onContextMenu={(e) => handleRowRightClick(matchingSessions?.idSession ? matchingSessions : sessionData,e)}
+            onContextMenu={(e) => handleRowRightClick(matchingSessions?.id ? matchingSessions : sessionData,e)}
 
         >
-            {matchingSessions?.idSession && (
+            {matchingSessions?.id && (
                 <FullSession
-                    title  = {matchingSessions[titleKey]}
-                    sousTitle = {(entity === 'room' || isPresentiel) ? matchingSessions[sousTitleKey] : 'A distance' }
-                    status={matchingSessions.status}
+                    title  = {matchingSessions.display[titleKey]}
+                    sousTitle = {(entity === 'room' || isPresentiel) ? matchingSessions.display[sousTitleKey] : 'A distance' }
+                    status={matchingSessions.raw.status}
                 />
             )}
         </div>

@@ -9,23 +9,28 @@ use Illuminate\Support\Facades\Auth;
 class SchoolWorkingDayController extends Controller
 {
     public function save (Request $request){
-        $daysIds = $request->days;
+        $daysIds = $request->selectedDaysIds;
         $school = Auth::user()->school;
-
         $activeModeId = $school->activeMode()->id;
-        SchoolWorkingDay::where('school_id', $school->id)
+        $existingDayIds = SchoolWorkingDay::where('school_id', $school->id)
         ->where('mode_id',$activeModeId)
+        ->pluck('day_id')->toArray();
+        $toInsert = array_diff($daysIds, $existingDayIds); 
+        $toDelete = array_diff( $existingDayIds,$daysIds); 
+
+        foreach($toInsert as $dayId){
+            SchoolWorkingDay::create([
+                    'school_id'=>$school->id,
+                    'day_id'=>$dayId,
+                    'mode_id'=>$activeModeId,
+                    'note'=>null
+            ]);  
+        }
+        SchoolWorkingDay::where('school_id',$school->id)
+        ->where('mode_id',$activeModeId)
+        ->whereIn('day_id',$toDelete)
         ->delete();
 
-        foreach($daysIds as $dayId){
-            SchoolWorkingDay::create([
-                  'school_id'=>$school->id,
-                  'day_id'=>$dayId,
-                  'mode_id'=>$activeModeId,
-                  'note'=>null
-            ]);
-        }
-
-        return to_route('configuration');
+        return redirect()->back();
     }
 }

@@ -18,8 +18,6 @@ class ConfigurationController extends Controller
             return $item->only(['id', 'time_slot_type']);
         });
         $schoolWorkingDaysIds = $school->workingDays->pluck('id');
-        $activeModeId = $school->activeMode()->id;
-        $timeSlots = $school->activeTimeSlots();
         $timeSlotsByTypes = $school->timeSlotsGroupedByType();
      
         return Inertia::render('admin/Indexes/Configuration',[
