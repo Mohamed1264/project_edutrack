@@ -2,10 +2,10 @@ export const rightClick = (cell,e,selectedSession,setSelectedSession,setContextM
     e.preventDefault(); // Prevent the default context menu
     e.stopPropagation(); // Prevent event bubbling
     
-    const sessionId = cell.idSession;
+    const sessionId = cell.id;
 
     // If right-clicking the same row, close the menu
-    if (selectedSession && selectedSession.idSession === sessionId) {
+    if (selectedSession && selectedSession.id === sessionId) {
     setSelectedSession(null);
     return;
     }

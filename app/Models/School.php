@@ -19,9 +19,8 @@ use App\Models\TimeSlotType;
 use App\Models\TimeSlot;
 use App\Models\SchoolWorkingDay;
 use App\Models\Room;
-use App\Models\SessionTemplate;
-use App\Models\ScheduleVersion;
-use App\Models\SessionInstance;
+use App\Models\Schedule;
+
 use App\Models\Event;
 use App\Models\AppliedEvent;
 use App\Models\ClassSession;
@@ -59,11 +58,19 @@ class School extends Model
             ->get();
     }
 
-    public function getUsersInfo (){
+    public function teachers (){
+        return Account::with('user:user_key,full_name,gender')
+        ->where('school_key',$this->school_key)
+        ->whereNot('teacher_type_id',null)
+        ->get(['id','user_key']);
+    }
+
+    public function getUserInfo($id){
         return DB::table('users')
              ->join('accounts', 'users.user_key', '=', 'accounts.user_key')
              ->where('accounts.school_key', $this->school_key)
-             ->select('users.*','accounts.*')
+             ->where('accounts.id',$id)
+             ->select('users.full_name','users.gender','accounts.id')
              ->get();
      }
 
@@ -127,6 +134,15 @@ class School extends Model
         ->select('groups.id','SSI.name','groups.type')
         ->get();
     }
+    public function getGroupInfo($id){
+        return DB::table('groups')
+        ->join('schools','schools.id','=','groups.school_id')
+        ->join('school_structure_instances as SSI','SSI.id' ,'=','groups.school_structure_instance_id')
+        ->where('groups.school_id',$this->id)
+        ->where('groups.id',$id)
+        ->select('groups.id','SSI.name','groups.type')
+        ->get();
+    }
 
     public function modules (){
         return $this->hasMany(Module::class,'school_id');
@@ -162,6 +178,9 @@ class School extends Model
             ->withTimestamps();
     }
 
+  
+
+
 
     public function timeSlotsModes()
     {
@@ -170,7 +189,7 @@ class School extends Model
     public function activeMode(){
         return  DB::table('time_slots_modes')
         ->join('schools', 'schools.id', '=', 'time_slots_modes.school_id')
-        ->where('time_slots_modes.id', $this->id)
+        ->where('time_slots_modes.school_id', $this->id)
         ->where('time_slots_modes.is_active',true)
         ->select('time_slots_modes.*')
         ->get()->first();
@@ -190,7 +209,7 @@ public function timeSlots()
 public function activeTimeSlots (){
     return  $this->timeSlots()->where('mode_id',$this->activeMode()->id)
     ->where('is_active',true)
-    ->select('start_date','end_date')->get()->all();
+    ->select('id','start_time','end_time')->get()->all();
 }
 public function timeSlotsGroupedByType()
 {
@@ -212,6 +231,7 @@ public function timeSlotsGroupedByType()
 
         return [
             'type' => $type->time_slot_type,
+            'type_id'=>$type->id,
             'is_type_has_sessions' => $hasSessions, // Global flag for the type
             'slots' => $type->timeSlots->map(function($slot) {
                 return [
@@ -230,20 +250,25 @@ public function rooms()
     return $this->HasMany(Room::class);
 }
 
-public function sessionTemplates()
-{
-    return $this->HasMany(SessionTemplate::class,);
-}
 
-public function scheduleVersions()
-{
-    return $this->HasMany(ScheduleVersion::class,);
-}
 
-public function sessionInstances()
-{
-    return $this->HasMany(SessionInstance::class);
-}
+public function getActiveSessionInstances( $ownerId, $ownerFK)
+    {
+        return  DB::table('session_instances as SI')
+        ->join('schools as S' , 'S.id','=','SI.school_id')
+        ->join('session_templates as ST' , 'ST.id','=','SI.session_template_id')
+        ->join('week_days as D' , 'D.id','=','SI.day_id')
+        ->join('time_slots as TS' , 'TS.id','=','SI.time_slot_id')
+        ->join('session_versions as SV' , 'SV.id','=','SI.version_id')
+        ->where('SI.school_id',$this->id)
+        ->where(`ST.{$ownerFK}`,$ownerId)
+        ->where(`SV.is_current`,true)
+        ->select('S.id','SI.status','SI.start_date','SI.end_time',
+        'D.id','D.day_name','TS.id','TS.start_date','TS.end_date',
+        'ST.teacher_id','ST.group_id','ST.room_id')
+        ->get();
+        ;
+    }
 
 public function events()
 {
@@ -252,6 +277,9 @@ public function events()
 
 public function appliedEvents (){
     return $this->hasMany(AppliedEvent::class,'school_id');
+}
+public function schedules (){
+    return $this->hasMany(Schedule::class,'school_id');
 }
 public function classSessions (){
     return $this->hasMany(ClassSession::class,'school_id');

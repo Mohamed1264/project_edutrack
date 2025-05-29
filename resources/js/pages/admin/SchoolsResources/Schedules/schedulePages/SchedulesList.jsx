@@ -10,6 +10,7 @@ import SchoolResourcesLayout from '../../../../../layouts/SchoolResourcesLayout'
 export default function SchedulesList ({data,type,name}) { 
    console.log(data);
    
+   
     const [search,setSearch] = useState('')
   
   

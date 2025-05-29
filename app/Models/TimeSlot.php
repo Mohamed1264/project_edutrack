@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Schedule;
 class TimeSlot extends Model
 {
     /** @use HasFactory<\Database\Factories\TimeSlotFactory> */
@@ -14,8 +14,8 @@ class TimeSlot extends Model
         'mode_id',
         'type_id',
         'is_active',
-        'start_date',
-       'end_date'
+        'start_time',
+       'end_time'
     ];
 
     public function mode()
@@ -34,8 +34,11 @@ class TimeSlot extends Model
         return $this->belongsTo(School::class);
     }
 
-    public function sessionInstances()
+    
+public function schedules()
 {
-    return $this->HasMany(SessionInstance::class);
+    return $this->hasMany(Schedule::class,'time_slot_id');
 }
+
+
 }

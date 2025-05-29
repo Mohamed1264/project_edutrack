@@ -24,8 +24,9 @@ Route::middleware([Authenticate::class, CheckRole::class.':Admin'])->group(funct
     Route::inertia('/profile', 'admin/Profile')->name('admin.profile');
     Route::inertia('/humanResources', 'admin/Indexes/HumanRessources')->name('humanResources');
     Route::get('/configuration', [ConfigurationController::class,'showConfiguration'])->name('configuration');
-    Route::post('/configuration/workingDays', [SchoolWorkingDayController::class,'save'])->name('save_working_days');
-    Route::post('/configuration/timeSlots', [TimeSlotsController::class,'save'])->name('save_time_slots');
+    Route::post('/configuration/workingDays', [SchoolWorkingDayController::class,'save'])->name('working.days.save');
+    Route::post('/configuration/timeSlots', [TimeSlotsController::class,'save'])->name('time.slots.save');
+    Route::delete('/configuration/timeSlots', [TimeSlotsController::class,'delete'])->name('time_slots.delete');
     Route::prefix('schoolResources')->group(function () {
         Route::inertia('/', 'admin/SchoolsResources/SchoolResources')->name('schoolResources');
         Route::inertia('/groups', 'admin/SchoolsResources/Groups/Groups')->name('schoolResources.groups');

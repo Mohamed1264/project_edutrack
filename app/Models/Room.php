@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\School;
-use App\Models\SessionTemplate;
+use App\Models\Schedule;
 
 class Room extends Model
 {
@@ -20,8 +20,9 @@ class Room extends Model
     {
         return $this->belongsTo(School::class);
     }
-    public function sessionTemplates()
+   
+public function schedules()
 {
-    return $this->HasMany(SessionTemplate::class,);
+    return $this->hasMany(Schedule::class);
 }
 }

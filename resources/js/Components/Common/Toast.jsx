@@ -1,4 +1,4 @@
-// import { toast } from "react-toastify"
+import { toast } from "react-toastify"
 
 
 
@@ -32,7 +32,9 @@ export const successNotify  = (msg)=> toast.success(<CustomToast message={msg}/>
                 className: 'p-0 w-76 bg-green-200/50 dark:bg-green-700/50 backdrop-blur-sm text-green-700 dark:text-green-50',
                 icon : false,
                 progressClassName: "bg-green-700 dark:bg-green-50",
-                autoClose: 3000
+                autoClose: 3000,
+                pauseOnHover : false,
+                closeButton : false,
                 
                 }
 )

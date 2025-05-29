@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('mode_id')->constrained('time_slots_modes')->onDelete('cascade');
             $table->foreignId('type_id')->constrained('time_slot_types')->onDelete('cascade');
             $table->boolean('is_active');
-            $table->time('start_date');
-            $table->time('end_date');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->timestamps();
         });
     }
