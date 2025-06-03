@@ -1,14 +1,13 @@
 import { ArrowLeft, Users, Calendar } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import AbsenceState from './AbsenceState';
 const gridTemplateColumns = "50px 120px 1fr";
 export  function ListHeader({groupLibel , studentsCount, date}) {
-    const navigate = useNavigate();
+  
     return (
         <div className=" mb-6">
         <div className="flex items-center gap-4 mb-2">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => {}}
             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

@@ -15,14 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('teacher_id')->constrained('accounts')->onDelete('cascade');
             $table->foreignId('group_id')->constrained('groups')->onDelete('cascade');
-            $table->foreignId('room_id')->constrained('rooms')->onDelete('cascade');
+            $table->foreignId('room_id')->nullable()->constrained('rooms')->onDelete('cascade');
             $table->foreignId('time_slot_id')->constrained('time_slots')->onDelete('cascade');
             $table->foreignId('day_id')->constrained('week_days')->onDelete('cascade');
             $table->foreignId('replace_session_id')->nullable()->constrained('schedules')->onDelete('cascade');
             $table->foreignId('school_id')->constrained('schools')->onDelete('cascade');
             $table->foreignId('term_id')->constrained('terms')->onDelete('cascade');
-            $table->enum('status',['Active','OverLapped','Archived','Temporaire','Canceled']);
-            $table->boolean('is_temporaire')->default(false);
+            $table->enum('status',['Active','OverLapped','Archived','Temporary','Canceled']);
+            $table->enum('type',['Presential','Remotely']);
+            $table->boolean('is_temporary')->default(false);
             $table->date('version_start_date');
             $table->date('version_end_date')->nullable();
             $table->date('temporary_from')->nullable();

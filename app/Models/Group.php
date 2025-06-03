@@ -10,7 +10,7 @@ use App\Models\Teach;
 use App\Models\Account;
 use App\Models\StudentPath;
 use App\Models\Schedule;
-
+use Illuminate\Support\Facades\DB;
 class Group extends Model
 {
     /** @use HasFactory<\Database\Factories\GroupsFactory> */
@@ -22,6 +22,17 @@ class Group extends Model
     {
         return $this->belongsTo(School::class,'school_id');
     }
+
+    public static function getGroupInfo($id,$school_id){
+        return DB::table('groups')
+        ->join('schools','schools.id','=','groups.school_id')
+        ->join('school_structure_instances as SSI','SSI.id' ,'=','groups.school_structure_instance_id')
+        ->where('groups.school_id',$school_id)
+        ->where('groups.id',$id)
+        ->select('groups.id','SSI.name','groups.type')
+        ->get()->first();
+    }
+
 
     public function structureInstance()
 {

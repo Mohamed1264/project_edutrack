@@ -14,40 +14,124 @@ export default function ManagingScheduleModal({
     session,
     onCancel,
     handleBackToOriginal,
-    entityName,
-    entity
+    owner,
+    name,
+    entity,
+    available
 }) {
     const popoverRef = useRef(null);
     useClickOutSide(onCancel, popoverRef)
     const [isZoomed, setIsZoomed] = useState(false)
     const [sessionState, setSessionState] = useState(session)
-    const currentDate = new Date ()
+    
+    const now = new Date ()
 
-  
+    const ownerName = owner[name]
+
+    const getGender = (gender) => {
+        return gender === 'Male' ? 'Mr' : 'Mme'
+    }
+    const title = entity === 'teachers' ? `${getGender(owner.user.gender)}.${owner.user.full_name}` : ownerName
 
     
     const isSubmitButtonDisabled = () => {
-        const isTemporaryValid = sessionState?.is_temporary ? (sessionState?.start_date && sessionState?.end_date) : true;
+        const isTemporaryValid = sessionState?.raw.is_temporary ? (sessionState?.raw.temporary_from && sessionState?.raw.temporary_to) : true;
         switch (entity) {
-            case 'teacher':
-                return ! ( (sessionState?.type === 'Presentiel' ? sessionState?.room_name : true) && isTemporaryValid && sessionState?.group_name )
-            case 'group':
-                return ! ( (sessionState?.type === 'Presentiel' ? sessionState?.room_name : true) && isTemporaryValid && sessionState?.teacher_name )
-            case 'room':
-                return  !(sessionState?.teacher_name && sessionState?.group_name && isTemporaryValid)
+            case 'teachers':
+                return ! ( (sessionState?.raw.type === 'Presential' ? sessionState?.display.room : true) && isTemporaryValid && sessionState?.display.group )
+            case 'groups':
+                return ! ( (sessionState?.raw.type === 'Presential' ? sessionState?.display.room : true) && isTemporaryValid && sessionState?.display.teacher )
+            case 'rooms':
+                return  !(sessionState?.display.teacher_name && sessionState?.display.group_name && isTemporaryValid)
         
             default:
                 return true;
         }
     }
     
+           
+    
+    
     const handleChange = (name, value) => {
+        
+        if (name === 'is_temporary') {
+            
+             // Start date: today
+             const startDate = now.toISOString().split('T')[0]; // "YYYY-MM-DD"
+            
+             // End date: 7 days from now
+             const endDate = new Date(now);
+             endDate.setDate(endDate.getDate() + 6); // 7 days total including today
+             const endDateFormatted = endDate.toISOString().split('T')[0];
+            setSessionState(prev => ({
+                ...prev,
+                raw : {
+                    ...prev.raw,
+                    status: value ? 'Temporary' :'Active',
+                    'temporary_from' : value ? startDate : null,
+                    'temporary_to' : value ? endDateFormatted : null,
+                    [name]: value
+                } 
+            }));
+            return false;   
+        }
+
+        if (name === 'type' && value === 'Remotely' ) { 
+            setSessionState(prev => ({
+                ...prev,
+                display : {
+                    ...prev.display,
+                    room : null,
+                },
+                raw : {
+                    ...prev.raw,
+                    type: 'Remotely',
+                    room_id : null
+                } 
+            }));
+            return false;
+           
+        }
         
         setSessionState(prev => ({
             ...prev,
-            [name]: value
+            raw : {
+                ...prev.raw,
+                [name]: value
+            }
+            
         }));
     }
+
+    function updateSession(session, updates) {
+        return {
+          ...session,
+          display: {
+            ...session.display,
+            ...(updates.display || {})
+          },
+          raw: {
+            ...session.raw,
+            ...(updates.raw || {})
+          }
+        };
+      }
+    const handleEntityChange = (entityType, selectedItem) => {
+        if (!selectedItem) return;
+      
+        const displayKey = entityType;          // e.g. "group", "teacher", "room"
+        const rawKey = `${entityType}_id`;      // e.g. "group_id", "teacher_id", "room_id"
+
+        const updatedSession = updateSession(sessionState , {
+            'display' : {[displayKey] : selectedItem?.name || selectedItem?.room_name },
+            'raw' : {[rawKey] : selectedItem.id },
+        })
+      
+        
+      
+        setSessionState(updatedSession);
+      };
+      
 
 
     return (
@@ -70,10 +154,10 @@ export default function ManagingScheduleModal({
                             </div>
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Mr. {entityName}
+                                    {title }
                                 </h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    {session?.day_of_week} • {session?.start_time} - {session?.end_time}
+                                    {session.display.day} • {session.display.time_slot}
                                 </p>
                             </div>
                         </div>
@@ -102,7 +186,7 @@ export default function ManagingScheduleModal({
 
                     {/* Content */}
                     <div className="p-6">
-                        {session?.status === 'deleted' ? (
+                        {session?.raw.status === 'Deleted' ? (
                             <div className="flex flex-col items-center justify-center gap-6 py-8">
                                 <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
                                     <Calendar className="w-6 h-6 text-red-600 dark:text-red-400" />
@@ -112,11 +196,11 @@ export default function ManagingScheduleModal({
                                         Temporarily Deleted Session
                                     </h3>
                                     <p className="text-gray-500 dark:text-gray-400">
-                                        From {session?.start_date} to {session?.end_date}
+                                        From {session?.raw.temporary_from} to {session?.raw.temporary_to}
                                     </p>
                                 </div>
                                 <button
-                                    onClick={()=>restoreSession(session.idSession)}
+                                    onClick={()=>restoreSession(session.id)}
                                     className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 
                                         rounded-lg hover:bg-blue-700 focus:ring-2 focus:outline-none 
                                         focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 
@@ -129,107 +213,93 @@ export default function ManagingScheduleModal({
                             <form onSubmit={(e)=>handleSubmit(e,sessionState)} className="space-y-6">
                                 <div className="flex items-center justify-between">
                                     <Switch
-                                        checked={sessionState?.is_temporary}
+                                        checked={sessionState?.raw.is_temporary}
                                         label="Temporary Session"
-                                        handleChange={()=>handleChange('is_temporary', !sessionState?.is_temporary)}
+                                        handleChange={()=>handleChange('is_temporary', !sessionState?.raw.is_temporary)}
                                         name='is_temporary'
                                     />
                                 </div>
                                 {
-                                    entity !== 'room' &&
+                                    entity !== 'rooms' &&
                                     <div className="flex items-center justify-between w-full">
                                         <RatioField
                                             name="type"
                                             label="Type of Session"
-                                            value={sessionState?.type}
+                                            value={sessionState?.raw.type}
                                             handleChange={handleChange}
-                                            items={['Presentiel', 'A distance']}
+                                            items={['Presential', 'Remotely']}
                                         />
                         
                                     </div>
                                 }
 
-                                <div className={`grid gap-4 ${sessionState?.type === 'A distance' ? 'grid-cols-1' : 'grid-col-1 md:grid-cols-2'}`}>
+                                <div className={`grid gap-4 ${sessionState?.raw.type === 'Remotely' ? 'grid-cols-1' : 'grid-col-1 md:grid-cols-2'}`}>
                                     {
-                                        entity !== 'group' && (
+                                        entity !== 'groups' && (
+                                            available.groups.length ? 
                                             <CustomSelect
-                                                items={groups}
+                                                items={available.groups}
                                                 label="Available Groups"
-                                                name="group_name"
-                                                value={sessionState?.group_name}
-                                                nameKey={'libel'}
+                                                name="name"
+                                                value={sessionState?.display.group}
+                                                nameKey={'group'}
                                                 placeholder="Select group"
-                                                handleChange={handleChange}
+                                                handleChange={handleEntityChange}
                                                 icon={<Presentation className="w-4 h-4 text-gray-400" />}
                                             />
+                                            :
+                                            <span>No groups Available</span>
                                         )
                                     }
                                     {
-                                        entity !== 'teacher' && (
+                                        entity !== 'teachers' && (
+                                            available.teachers.length ? 
                                             <CustomSelect
-                                                items={teachers}
+                                                items={available.teachers}
                                                 label="Available Teachers"
-                                                name="teacher_name"
-                                                nameKey={'fullName'}
-                                                value={sessionState?.teacher_name}
+                                                name="name"
+                                                nameKey={'teacher'}
+                                                value={sessionState?.display.teacher}
                                                 placeholder="Select Teacher"
                                                 position="top"
-                                                handleChange={handleChange}
+                                                handleChange={handleEntityChange}
                                                 icon={<UserPen className="w-4 h-4 text-gray-400" />}
                                             />
+                                            : 
+                                            <span>No Teachers Available</span>
                                         )
                                     }
                                     {
-                                        sessionState?.type === 'Presentiel' && entity !== 'room' && (
+                                        sessionState?.raw.type === 'Presential' && entity !== 'rooms' && (
+                                            available?.rooms.length ? 
                                             <CustomSelect
-                                                items={rooms}
+                                                items={available.rooms}
                                                 label="Available Rooms"
                                                 name="room_name"
-                                                nameKey={'roomName'}
-                                                value={sessionState?.room_name}
+                                                nameKey={'room'}
+                                                value={sessionState?.display.room}
                                                 placeholder="Select room"
-                                                handleChange={handleChange}
+                                                handleChange={handleEntityChange}
                                                 position="top"
                                                 icon={<Building2 className="w-4 h-4 text-gray-400" />}
                                             />
+                                            :
+                                            <span>No rooms available</span>
                                         )
                                     }
                                 </div>
 
-                                {sessionState?.is_temporary && (
+                                {
+                                    sessionState?.raw.is_temporary ?
                                     <div className="flex items-center justify-between gap-4">
-                                    <DateField
-                                        name="start_date"
-                                        label="Start Date"
-                                        value={sessionState?.start_date || ''}
-                                        handleChange={handleChange}
-                                        handleFocus={()=>{}}
-                                        min = {currentDate}
-                                        max = {sessionState?.end_date || ''}
-                                        yearsAccepted={[currentDate.getFullYear()]}
-
-
-                                    />
-                                       <DateField
-                                        name="end_date"
-                                        label="End Date"
-                                        value={sessionState?.end_date || ''}
-                                        handleChange={handleChange}
-                                        handleFocus={()=>{}}
-                                        min = {sessionState?.start_date || currentDate}
-                                        yearsAccepted={[currentDate.getFullYear()]}
-                                        
-
-                                    />
-
+                                    <span>the temporary sessions period are 1 week</span>
                                     </div>
-                                    
-                                   
-                                )}
+                                    : ''    
+                               }
 
                                 <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                                     {
-                                        session?.is_temporary && session?.original_group_name &&  (
+                                        session?.raw.is_temporary && session?.raw.replaced_session_id && session?.is_saved ?  (
                                             <button
                                                 type="button"
                                                 onClick={()=>handleBackToOriginal(session.idSession)}
@@ -240,8 +310,8 @@ export default function ManagingScheduleModal({
                                             >
                                                 Back to original
                                             </button>
-
                                         )
+                                        : ''
                                     }
                                             <button
                                                 type="submit"

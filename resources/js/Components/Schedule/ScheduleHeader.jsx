@@ -2,13 +2,15 @@ import { ToastContainer } from "react-toastify";
 import { ArrowLeft, ArrowRight, Trash2, Save, Download } from "lucide-react";
 import { useState } from "react";
 
-export default function ScheduleHeader({handlePreviousVersion,handleExport, handleNextVersion, activeScheduleVersion, scheduleVersionsLength, scheduleLength, handleClearSchedule, handleSaveChanges,  item,name,entity , numberHours}) {
+export default function ScheduleHeader({handlePreviousVersion,handleExport, handleNextVersion, activeScheduleVersion, scheduleVersionsLength, scheduleLength, handleClearSchedule, handleSaveChanges,  owner,name,entity , numberHours}) {
     const [saveMenu,setSaveMenu] = useState(false)
-    const entityName = item[name]
+    const ownerName = owner[name]
+   
+    
     const getGender = (gender) => {
         return gender === 'Male' ? 'Mr' : 'Mme'
     }
-    const title = entity === 'teacher' ? getGender(item.gender) : entity
+    const title = entity === 'teachers' ? `${getGender(owner.user.gender)}.${owner.user.full_name}` : ownerName
     const toggleSaveMenu = () => setSaveMenu(!saveMenu)
     const save = (saveWithExport) => {
         if (saveWithExport){
@@ -16,7 +18,7 @@ export default function ScheduleHeader({handlePreviousVersion,handleExport, hand
             handleExport()
             return false
         }
-        handleSaveChanges(saveWithExport)
+        handleSaveChanges()
         setSaveMenu(false)
     }
 
@@ -27,7 +29,7 @@ export default function ScheduleHeader({handlePreviousVersion,handleExport, hand
                                 Schedule
                             </span>
                             <h1 className="text-xl capitalize font-bold text-gray-700 dark:text-gray-50 ">
-                             {entity === 'Teacher' ? `${title} .` : title} {entityName} 
+                             {title} 
                               ({numberHours} <span className="text-gray-500 text-sm">hours</span>)
                             </h1>
                         </div>

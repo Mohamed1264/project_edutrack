@@ -19,8 +19,8 @@ export const rightClick = (cell,e,selectedSession,setSelectedSession,setContextM
     const containerRect = gridContainer ? gridContainer.getBoundingClientRect() : { top: 0, left: 0 };
     
     // Menu dimensions
-    const menuWidth = 180;
-    const menuHeight = 190;
+    const menuWidth = 120;
+    const menuHeight = 70;
     
     // Viewport dimensions
     const viewportWidth = window.innerWidth;

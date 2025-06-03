@@ -44,6 +44,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
+                'account_id'=> $request->user()?->id,
                 'user' => $request->user()?->user,
                 'role'=>$request->user()?->user->role,
                 'school'=>$request->user()?->school,
@@ -53,7 +54,13 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+           
+            'theme' =>  $request->hasCookie('theme') && $request->user()?->user ? $request->cookie('theme')  : 'light',
+            'flash' => [
+                'info' => fn () => $request->session()->get('info'),
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
         ];
     }
 }

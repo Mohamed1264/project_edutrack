@@ -4,14 +4,14 @@ import SearchBar from '../../../../../Components/Common/SearchBar'
 import { useState } from 'react'
 import { Download, LayoutGrid, List, Pen, Trash2, X } from 'lucide-react'
 import { route } from 'ziggy-js';
+import { router } from "@inertiajs/react";
 import SchoolResourcesLayout from '../../../../../layouts/SchoolResourcesLayout';
-
-
+import ClearScheduleModal from '../modals/ClearScheduleModal';
 export default function SchedulesList ({data,type,name}) { 
-   console.log(data);
-   
-   
-    const [search,setSearch] = useState('')
+
+    const [search,setSearch] = useState('');
+    const [selectedSchedule,setSelectedSchudele] = useState(null);
+    const [displayedModal,setDisplayedModal] = useState(false)
   
   
     const [isAllSelected,setIsAllSelected] = useState(false)
@@ -45,7 +45,22 @@ export default function SchedulesList ({data,type,name}) {
         setSelectedSchudeles(schedules.map(schedule => schedule.fullName))
         setIsAllSelected(true)
     }
-    
+    const handleChange = (schedule)=>{
+        setSelectedSchudele(schedule);
+        setDisplayedModal(true);
+    }
+    const handleCancel = ()=> {
+        setSelectedSchudele(null)
+        setDisplayedModal(false)
+    };
+    const clearSchedule = () => {
+        setDisplayedModal(false)
+        router.post(
+            route('schoolResources.schedules.schedule.clear', {type:type,id:selectedSchedule?.id},),   
+        )
+        setSelectedSchudele(null)
+        setDisplayedModal(false)
+    }
 
     return (
         <SchoolResourcesLayout>
@@ -54,7 +69,7 @@ export default function SchedulesList ({data,type,name}) {
                 <h1 className='text-xl flex-1 text-gray-700 dark:text-gray-50 font-bold'> {type} Schedules</h1>
             </div>
             <div className='flex items-center gap-2'>
-                <div classname="flex-1">
+                <div className="flex-1">
                 <SearchBar searchTerm={search} handleSearch={handleSearch} />
                 </div>
                 
@@ -63,7 +78,7 @@ export default function SchedulesList ({data,type,name}) {
                     schedules.length > 0 &&
                     <div className='flex items-center gap-4'>
                         <button
-                            onClick={selectedSchedules.length !== 0 && !isAllSelected  ? '' : ''}
+                            onClick={()=>{}}
                             className='px-2 py-1.5 rounded-lg bg-red-500 dark:bg-red-700 text-white 
                                 hover:bg-red-600 dark:hover:bg-red-800 transition-colors flex items-center gap-2' 
                         >
@@ -71,7 +86,7 @@ export default function SchedulesList ({data,type,name}) {
                             Clear {selectedSchedules.length !== 0 && !isAllSelected  ? 'Selected ' : 'All'}
                         </button>
                         <button
-                            onClick={selectedSchedules.length !== 0 && !isAllSelected  ? '' : ''}
+                            onClick={()=>{}}
                             className='px-2 py-1.5 rounded-lg bg-blue-500 dark:bg-blue-700 text-white 
                                 hover:bg-blue-600 dark:hover:bg-blue-800 transition-colors flex items-center gap-2' 
                         >
@@ -141,7 +156,7 @@ export default function SchedulesList ({data,type,name}) {
                                                 <Download size={18} />
                                             </button>
                                             <button
-                                                onClick={() => {}}
+                                                onClick={() => handleChange(schedule)}
                                                 className="p-2 rounded-full bg-red-500 dark:bg-red-700
                                                     text-white
                                                     hover:bg-red-600 dark:hover:bg-red-800"
@@ -206,6 +221,16 @@ export default function SchedulesList ({data,type,name}) {
         
          
         </div>
+
+        {displayedModal && (
+                        <ClearScheduleModal 
+                            type={type}
+                            name = {name}
+                            ClearSchedule = {clearSchedule}
+                            handleCancel={handleCancel}
+                            selectedItem = {selectedSchedule}
+                        />
+                    )}
 
         </SchoolResourcesLayout>
       
