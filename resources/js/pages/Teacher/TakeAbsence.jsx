@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+
 import { stageirs, Groups } from '../../Data/TeacherSideData';
 import {ListHeader ,TableListBody,TableListHeader} from '../../Components/Teacher/ListComponents';
+import Layout from '../../layouts/Layout';
 
 const TakeAbsence = () => {
-  const { groupId } = useParams();
-  const navigate = useNavigate();
+  const  groupId  = 1;
+ 
   // Get current date
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString('en-US', {
@@ -41,7 +42,7 @@ const TakeAbsence = () => {
     }
   }, [groupId]);
 
-  const group = Groups.find((group) => group.idg.toString() === groupId);
+  const group = Groups.find((group) => group.idg === groupId);
 
   // Handle radio button change
   const handleRadioChange = (cef, type) => {
@@ -58,7 +59,7 @@ const TakeAbsence = () => {
     setIsSubmitted(true);
     localStorage.setItem(`attendance_${groupId}`, "submitted");
     alert("Attendance recorded successfully!");
-    navigate(-1);
+
   };
 
   // Reset absence data
@@ -70,10 +71,11 @@ const TakeAbsence = () => {
 
 
   return (
-    <div className="mt-4 text-gray-700 dark:text-gray-50 max-w-6xl mx-auto">
+    <Layout>
+ <div className="mt-4 text-gray-700 dark:text-gray-50 max-w-5xl mx-auto px-7 pr-5">
       {/* Header Section */}
-      <ListHeader groupLibel={group.name} studentsCount={filteredStagiaires.length} date={formattedDate} />
-      {filteredStagiaires && filteredStagiaires.length > 0 ? (
+      <ListHeader groupLibel={group?.name} studentsCount={filteredStagiaires?.length} date={formattedDate} />
+      {filteredStagiaires && filteredStagiaires?.length > 0 ? (
         <div className="table-responsive ">
           <form onSubmit={submitAbsence} className="p-4 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
             {/* Header */}
@@ -108,9 +110,11 @@ const TakeAbsence = () => {
           </form>
         </div>
       ) : (
-        <p className="text-center">No stagiaires found for this group.</p>
+        <p className="text-center">No Students found for this group.</p>
       )}
     </div>
+    </Layout>
+   
   );
 };
 

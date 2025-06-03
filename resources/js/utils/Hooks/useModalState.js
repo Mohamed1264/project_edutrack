@@ -37,7 +37,6 @@ export const useModalState = () => {
       default:
         stateProperty = `is${modalName.charAt(0).toUpperCase() + modalName.slice(1)}ModalOpen`;
     }
-    console.log(stateProperty);
     
 
     // Close all modals first to prevent multiple open modals
@@ -103,7 +102,7 @@ export const useModalState = () => {
       case 'delete item':
           stateProperty = 'isDeleteItemOpen';
           break;
-      case 'delete':
+      case 'delete Session':
         stateProperty = 'isDeleteModalActive';
         break;
       case 'clearSchedule':

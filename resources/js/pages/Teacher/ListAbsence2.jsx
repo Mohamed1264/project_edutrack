@@ -1,12 +1,12 @@
 import {  useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+
 import { stageirs, Groups  } from '../../Data/TeacherSideData';
 import {ListHeader ,TableListBody, TableListHeader} from '../../Components/Teacher/ListComponents';
 
 
 const Listabsence = () => {
   const { absenceId } = useParams();
-  const navigate = useNavigate();
+
 
   // Filter stagiaires by group
   const filteredStagiaires = stageirs.filter(
@@ -41,7 +41,7 @@ const Listabsence = () => {
     e.preventDefault();
     setIsSubmitted(true);
     alert('Attendance recorded successfully!');
-     navigate('/');
+
   };
 
   // Reset absence data

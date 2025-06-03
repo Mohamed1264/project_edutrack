@@ -7,14 +7,21 @@ export default function TimeFilter ({selected,setNewTimeRange}){
         {value:'Last Week',option : 'La semaine dernière'},
         {value:'Last Month',option : 'Le mois dernier'},
     ]
+
+    const handleChange = (name,value)=>{
+        setNewTimeRange(value);
+    }
  
     return (
         <div className="">
             <SelectInput 
                 placeholder={'select Time period'} 
-                handleChange={setNewTimeRange} 
+                handleChange={handleChange} 
                 value={selected} 
                 items={options} 
+                labelKey = {'option'}
+                valueKey = {'value'}
+                name={'value'}
             />
         </div>
     )

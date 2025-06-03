@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('term_type_id')->constrained('term_types');
             $table->string('term_name');
             $table->date('start_date');
-            $table->date('end_date');
+            $table->date('end_date')->nullable();
             $table->boolean('is_active')->default(false);
             $table->timestamps();
         });

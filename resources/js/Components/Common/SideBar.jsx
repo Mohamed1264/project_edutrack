@@ -1,13 +1,16 @@
 import {  
   School, LayoutGrid, ClipboardList, User,
   CalendarFold, Sun, Moon, LogOut,
-  TrafficCone, History, Users, Bolt, GraduationCap,CheckCircle
+  TrafficCone, History, Users, Bolt, GraduationCap,CheckCircle,
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 
-import { useState, useCallback } from 'react';
-import { usePage } from '@inertiajs/react';
+import { useState, useRef } from 'react';
+import { router, usePage } from '@inertiajs/react';
 import { Link } from '@inertiajs/react'
 import { route } from 'ziggy-js';
+import useClickOutSide from '../../utils/Hooks/useClickOutSide';
 
 const homePage = {
   'Admin' : 'admin.dashboad',
@@ -83,14 +86,15 @@ const links = {
     },
     {
       pageName: 'Track Progress',
-      routeName: 'teahcer.progress',
+      routeName: 'teacher.progress',
       description: 'Monitor student progress',
    
     },
     {
       pageName: 'Schedules Archive',
-      routeName: 'teacher.schedules.archive',
+      routeName: 'teacher.archive',
       description: 'View schedule archive',
+    
     }
   ]
 };
@@ -117,29 +121,41 @@ const icons = {
   }
 };
 
-export default function SideBar({ darkMode, setDarkMode }) {
-
+export default function SideBar() {
 
   const user = usePage().props.auth.user;
   const role = usePage().props.auth.role.role_name;
+  const theme = usePage().props.theme;
   const routeName = usePage().props.routeName;
  
   const [isExpanded, setIsExpanded] = useState(false);
   const [hoverTimeout, setHoverTimeout] = useState(null);
+  const sideBarRef = useRef(null);
 
-  const handleMouseEnter = useCallback(() => {
+  const closeSideBar = () =>{
+    setIsExpanded(false);
+    setHoverTimeout(null)
+  }
+  useClickOutSide(closeSideBar,sideBarRef);
+
+
+  const toggleIsExpanded = () => {
     if (hoverTimeout) clearTimeout(hoverTimeout);
-    setHoverTimeout(setTimeout(() => setIsExpanded(true), 100));
-  }, [hoverTimeout]);
+    setHoverTimeout(setTimeout(() => setIsExpanded(!isExpanded), 100));
+  }
 
-  const handleMouseLeave = useCallback(() => {
-    if (hoverTimeout) clearTimeout(hoverTimeout);
-    setHoverTimeout(setTimeout(() => setIsExpanded(false), 100));
-  }, [hoverTimeout]);
 
-  const logOut = () => {
-    localStorage.removeItem('theme');
-  };
+
+
+  const toggleTheme = (newTheme)=>{
+    router.post('/changeTheme',{
+      'theme' : newTheme
+    },{
+        replace: true
+  
+    })
+  }
+
 
   const activeLinks = links[role];
   const activeIcons = icons[role];
@@ -151,24 +167,23 @@ export default function SideBar({ darkMode, setDarkMode }) {
 
   return (
     <aside 
+    ref={sideBarRef}
       className={`flex flex-col justify-between transition-all duration-300 ease-in-out
         fixed z-50 h-svh 
-        bg-white dark:bg-gray-900
+        bg-gray-50 dark:bg-gray-900
         text-gray-700 dark:text-gray-50
         border-r border-gray-200 dark:border-gray-800
         shadow-lg
         ${isExpanded ? 'w-72 2xl:w-96' : 'w-20 2xl:w-32'}
       `}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+
     >
       {/* Main Content Section */}
       <div className="flex flex-col h-full">
         {/* Logo Section */}
-        <Link 
-          href={homePage[role]}
+        <div 
           className={`flex items-center gap-3  border-b border-gray-200 dark:border-gray-800
-            bg-indigo-50 dark:bg-indigo-900/50 py-4 px-4 2xl:px-6'
+            bg-indigo-50 dark:bg-indigo-900/50 py-4 px-4 2xl:px-6 relative
             ${isExpanded ? ' justify-start ' : ' justify-center '}
             `}
         >
@@ -178,14 +193,20 @@ export default function SideBar({ darkMode, setDarkMode }) {
             ${isExpanded ? 'block' : 'hidden'}`}>
             EduTrack
           </h2>
-        </Link>
+          <button type='button' className=' absolute -right-3 top-1/2 -translate-y-1/2 ' onClick={toggleIsExpanded}>
+            <span className=' px-1 py-0.5 rounded-full border border-blue-100 bg-blue-400 text-blue-950 flex items-center justify-center'>
+               { isExpanded ? <ChevronLeft size={18}/> :    <ChevronRight size={18}/>}
+           
+            </span>
+          </button>
+        </div>
 
         {/* Navigation Menu */}
         <nav className="flex-1 p-3 ">
           <div className="flex flex-col gap-1 2xl:gap-4">
             {activeLinks.map(link => (
               <Link
-                href={ route(link.routeName)}
+                href={route(link.routeName)}
                 key={link.pageName}
                 className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm 2xl:text-xl
                   transition-all duration-200 group
@@ -218,10 +239,10 @@ export default function SideBar({ darkMode, setDarkMode }) {
           bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-900">
           {/* Theme Toggle */}
           <button
-            onClick={() => setDarkMode(darkMode === 'dark' ? 'light' : 'dark')}
+            onClick={() => toggleTheme(theme === 'dark' ? 'light' : 'dark') }
             className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm 2xl:text-xl font-medium
               transition-all duration-200 group
-              ${darkMode === 'dark'
+              ${theme === 'dark'
                 ? 'hover:bg-gray-800 text-yellow-400 hover:text-yellow-300'
                 : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
               }
@@ -229,11 +250,11 @@ export default function SideBar({ darkMode, setDarkMode }) {
             `}
           >
             <div className={`min-w-6 transition-colors duration-200
-              ${darkMode === 'dark' ? 'text-yellow-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>
-              {darkMode === 'dark' ? <Sun className="size-5 2xl:size-9"/> : <Moon className="size-5 2xl:size-9"/>}
+              ${theme === 'dark' ? 'text-yellow-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>
+              {theme === 'dark' ? <Sun className="size-5 2xl:size-9"/> : <Moon className="size-5 2xl:size-9"/>}
             </div>
             <span className={`transition-opacity duration-300 ${isExpanded ? 'block' : 'hidden'}`}>
-              {darkMode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
             </span>
           </button>
 

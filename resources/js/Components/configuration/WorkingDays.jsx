@@ -49,7 +49,7 @@ export default function WorkingDays({workingDaysIds,days}){
     return (
         <>
         { processing ?  <DotLoader /> : '' }
-        <ToastContainer pauseOnHover = {false} closeButton= {false} />
+
         <form onSubmit={saveWorkingDays} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"> 
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Working Days</h2>
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 ">

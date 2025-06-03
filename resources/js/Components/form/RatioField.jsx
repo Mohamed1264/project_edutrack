@@ -1,9 +1,7 @@
 export const RatioField = ({ name, label, items, handleChange, value }) => {
     const gridCols = items.length === 3 ? 'grid-cols-3' : 'grid-cols-2';
     const handleClick = (item,name) => {
-      if(item === value){
-        handleChange(name,'')
-      }else{
+      if(item !== value){
         handleChange(name,item)
       }
     }

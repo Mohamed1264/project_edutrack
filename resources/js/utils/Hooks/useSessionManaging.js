@@ -16,61 +16,72 @@ export const useSessionManagement = (initialSchedule = [],modal, versioning ) =>
 });
    
 
+const modifySession = (e, sessionState) => {
+  e.preventDefault();
+  console.log(sessionState);
   
-  // Add or update a session
-  const addSession = (e ,sessionState) => {
-    e.preventDefault();
-
-    const updatedSession = {
+  
+  // Determine action based on is_saved status
+  const updatedSession = {
       ...sessionState,
-      idSession: sessionState.idSession ? sessionState.idSession : new Date().getTime(),
-      status: sessionState.is_temporary ? 'temporary' : 'active',
-      original_group_name: sessionState.is_temporary && selectedSession ? selectedSession.group_name : null,
-      original_room_name: sessionState.is_temporary && selectedSession ? selectedSession.room_name : null,
-      original_type: sessionState.is_temporary && selectedSession ? selectedSession.type : null,
-      start_date: !sessionState.is_temporary ? null : sessionState.start_date,
-      end_date: !sessionState.is_temporary ? null : sessionState.end_date
-    };
-
-    const newSchedule = [
-      ...schedule.filter(session => session.idSession !== updatedSession.idSession), 
-      updatedSession
-    ];
-    
-    setSchedule(newSchedule);
-    addVersion(newSchedule);
-    
-    setSelectedSession(null);
-    successNotify('Session added successfully');
-    handleCancel();
-
-    return newSchedule;
+      action: sessionState.is_saved ? 'update' : 'create'
   };
 
+  const newSchedule = [
+      ...schedule.filter(session => session.id !== sessionState.id),
+      updatedSession
+  ];
+  
+  setSchedule(newSchedule);
+  addVersion(newSchedule);
+  setSelectedSession(null);
+  
+  // // Show appropriate success message
+  // const message = sessionState.is_saved 
+  //     ? 'Session updated successfully' 
+  //     : 'Session created successfully';
+  // successNotify(message);
+  
+  handleCancel();
+  return newSchedule;
+};
+  
+  // Add or update a session
+  // const modifySession = (e ,sessionState) => {
+  //   e.preventDefault();
+  //   const newSchedule = [...schedule.filter(session => session.id !== sessionState.id), sessionState];
+  //   setSchedule(newSchedule);
+  //   addVersion(newSchedule);
+  //   setSelectedSession(null);
+  //   successNotify('Session added successfully');
+  //   handleCancel();
+  //   return newSchedule;
+  // };
+
   // Delete a session
-  const deleteSession = (e,sessionDeleteState = {}) => {
+  const deleteSession = (e) => {
     e.preventDefault();
 
     if (!selectedSession) return schedule;
-    
     let newSchedule;
-    
-    if (sessionDeleteState?.is_temporary && selectedSession?.status === 'active') {
+
+    if (!selectedSession.is_saved) {
+      newSchedule = schedule.filter(session => session.id !== selectedSession.id );
+
+    }else {
       const updatedSession = {
         ...selectedSession,
-        status: 'deleted',
-        is_temporary: sessionDeleteState.is_temporary,
-        start_date: sessionDeleteState.start_date,
-        end_date: sessionDeleteState.end_date
+        raw : {
+          ...selectedSession.raw,
+          status: 'Archived',
+        },
+        action : 'delete' 
       };
-      newSchedule = [
-        ...schedule.filter(session => session.idSession !== updatedSession.idSession), 
-        updatedSession
-      ];
-    } else {
-      newSchedule = schedule.filter(session => session.idSession !== selectedSession.idSession);
+      
+      newSchedule = schedule.map(session => session.id === selectedSession.id ? updatedSession : session);
+      console.log(newSchedule);
+      
     }
-    
     setSchedule(newSchedule);
     addVersion(newSchedule);
     setSelectedSession(null);
@@ -137,73 +148,11 @@ export const useSessionManagement = (initialSchedule = [],modal, versioning ) =>
     return newSchedule;
   };
 
-  // Copy a session
-  const copySession = () => {
-    if (!selectedSession) return;
-    setSelectedSessionToCopy(selectedSession);
-    successNotify('Session copied successfully');
-    closeModal('contextMenu');
-  };
+ 
 
-  // Cut a session
-  const cutSession = () => {
-    if (!selectedSession) return;
-    
-    const newSchedule = schedule.filter(session => session.idSession !== selectedSession.idSession);
-    setSchedule(newSchedule);
-    addVersion(newSchedule);
-    setSelectedSessionToCopy(selectedSession);
-    setSelectedSession(null);
-    successNotify('Session cut successfully');
-    closeModal('contextMenu');
-    return newSchedule;
-  };
 
-  // Paste a session
-  const pasteSession = () => {
-    if (!selectedSessionToCopy) return schedule;
-    
-    
-    if (!selectedSession) return schedule;
-    
-    const newSession = {
-      ...selectedSessionToCopy,
-      day_of_week: selectedSession.day_of_week,
-      start_time: selectedSession.start_time,
-      end_time: selectedSession.end_time,
-      idSession: new Date().getTime(),
-    };
 
-    const newSchedule = [...schedule, newSession];
-    setSchedule(newSchedule);
-    addVersion(newSchedule);
-    setSelectedSessionToCopy(null);
-    successNotify('Session pasted successfully');
-    closeModal('contextMenu');
-    return newSchedule;
-  };
 
-  // Replace a session
-  const replaceSession = () => {
-    if (!selectedSession || !selectedSessionToCopy) return schedule;
-    
-    const filteredSchedule = schedule.filter(session => session.idSession !== selectedSession.idSession);
-    const newSession = {
-      ...selectedSessionToCopy,
-      day_of_week: selectedSession.day_of_week,
-      start_time: selectedSession.start_time,
-      end_time: selectedSession.end_time,
-      idSession: new Date().getTime(),
-    };
-    
-    const newSchedule = [...filteredSchedule, newSession];
-    setSchedule(newSchedule);
-    versioning.addVersion(newSchedule);
-    setSelectedSessionToCopy(null);
-    successNotify('Session replaced successfully');
-    closeModal('contextMenu');
-    return newSchedule;
-  };
 
   // Clear the entire schedule
   const clearSchedule = (e,scheduleDeleteState = {}) => {
@@ -261,11 +210,10 @@ export const useSessionManagement = (initialSchedule = [],modal, versioning ) =>
   };
 
    // Handle cancel action
-    const handleCancel = () => {
-        setSelectedSession(null);
-       
-        closeAllModals();
-    };
+  const handleCancel = () => {
+      setSelectedSession(null);
+      closeAllModals();
+  };
 
     
   
@@ -278,14 +226,10 @@ export const useSessionManagement = (initialSchedule = [],modal, versioning ) =>
     setSelectedSessionToCopy,
     isScheduleClearedTemporarly,
     setIsScheduleClearedTemporarly,
-    addSession,
+    modifySession,
     deleteSession,
     restoreToOriginal,
     restoreSession,
-    copySession,
-    cutSession,
-    pasteSession,
-    replaceSession,
     clearSchedule,
     restoreSchedule,
     handleCancel,

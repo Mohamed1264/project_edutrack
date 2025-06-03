@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { days, sessions} from "../../../../Data/ScheduleData";
 import { successNotify } from "../../../../Components/Common/Toast";
 import DeleteSessionModal from "./modals/DeleteSessionModal";
 import ManagingScheduleModal from "./modals/ManagingScheduleModal";
@@ -15,16 +14,20 @@ import { useModalState } from "../../../../utils/Hooks/useModalState";
 import RenderSessionCell from "../../../../Components/Schedule/RenderCell";
 import { rightClick } from "../../../../utils/AdminScheduleFunction/rightClick";
 import SchoolResourcesLayout from "../../../../layouts/SchoolResourcesLayout";
+import axios from "axios";
+import DotLoader from '../../../../Components/Loader/DotLoader'
+import { router } from "@inertiajs/react";
+import { route } from "ziggy-js";
 
-
-
-export default function Schedule({type,name,schedule,timeSlots,workingDays, owner}) {
-    console.log(schedule);
+export default function Schedule({type,name,sessions,timeSlots,workingDays, owner}) {
+     
+    const scheduleSessions = timeSlots
     
-    const scheduleSessions = type === 'groups' ? timeSlots.filter(session => session.start_time !== '19:00:00' ) : timeSlots
-   
     
+
     const [contextMenuPosition, setContextMenuPosition] = useState({ top: 0, left: 0 });
+    const [available,setAvailable] = useState({});
+    const [isLoading , setIsLoading] = useState(false);
 
     const {
             activeScheduleVersion, 
@@ -34,61 +37,37 @@ export default function Schedule({type,name,schedule,timeSlots,workingDays, owne
             getCurrentSchedule,
             addVersion,
             resetScheduleVersions
-        } = useScheduleVersion(schedule);
+    } = useScheduleVersion(sessions);
    
-        const { getModalState, openModal, closeModal, closeAllModals } = useModalState();
+    const { getModalState, openModal, closeModal, closeAllModals } = useModalState();
 
-        const modal = {closeModal,closeAllModals}
-        const versioning = {addVersion,resetScheduleVersions}
-        const {
-          
+    const modal = {closeModal,closeAllModals}
+    const versioning = {addVersion,resetScheduleVersions}
+    const {
+            schedule,
             setSchedule,
             selectedSession,
             setSelectedSession,
-            selectedSessionToCopy,
             isScheduleClearedTemporarly,
-            addSession,
+            modifySession,
             deleteSession,
             restoreToOriginal,
             restoreSession,
-            copySession,
-            cutSession,
-            pasteSession,
-            replaceSession,
             clearSchedule,
             restoreSchedule,
             handleCancel,
-        } = useSessionManagement(getCurrentSchedule() , modal, versioning);
-
-        const handleSaveChanges = () => {
-            successNotify('changes saved successfully') 
-        };
-       
-        // const handleExport = () => {
-        //     const success = exportScheduleAsPdf({
-        //         schedule,
-        //         entity,
-        //         days,
-        //         numberHours ,
-        //         item,
-        //         sessions : scheduleSessions,
-        //         entityName : item[name]
-        //     });
-
-        //     if (success) successNotify('Schedule saved & exported successfully');
-            
-        // }
-
-        const handleRowRightClick = (cell,e) => rightClick(cell,e,selectedSession,setSelectedSession,setContextMenuPosition,openModal);
+    } = useSessionManagement(getCurrentSchedule() , modal, versioning);
     
-        const resetContextMenu = useCallback(() => {
+    const handleRowRightClick = (cell,e) => rightClick(cell,e,selectedSession,setSelectedSession,setContextMenuPosition,openModal);
+    
+    const resetContextMenu = useCallback(() => {
             setSelectedSession(null);
             closeModal('contextMenu');
-        }, [closeModal,setSelectedSession]);
+    }, [closeModal,setSelectedSession]);
 
-        useEffect(() => {
+    useEffect(() => {
             const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && selectedSession?.idSession) {  // Fixed typo: 'Espace' → 'Escape'
+            if (e.key === 'Escape' && selectedSession?.id) {  // Fixed typo: 'Espace' → 'Escape'
                 resetContextMenu();
             }
             };
@@ -99,60 +78,55 @@ export default function Schedule({type,name,schedule,timeSlots,workingDays, owne
             return () => {
             document.removeEventListener('keydown', handleKeyDown);
             };
-        }, [selectedSession,resetContextMenu]);
+    }, [selectedSession,resetContextMenu]);
 
-        const getGender = (gender) => {
-            return gender === 'Male' ? 'Mr' : 'Mme'
+    const displayedSchedule = schedule.filter(session => session.raw.status !== 'Archived');
+
+
+
+
+        const handleModify = async () => {
+            closeModal('contextMenu')
+            setIsLoading(true);
+            try {
+              const response = await axios.get(`/schoolResources/schedules/${type}/${owner.id}/availability`, {
+                params: { day_id: selectedSession.raw.day_id, time_slot_id: selectedSession.raw.time_slot_id },
+              });
+              setAvailable(response.data.available)
+              openModal('scheduleManaging')
+            } catch (error) {
+              console.error('Error fetching availability:', error);
+            }finally{
+                setIsLoading(false)
+            }
+
         }
-        const title = type === 'teachers' ? getGender(owner.gender) : type
-        
 
-        // const exportPDF = async () => {
-        //     const input = captureRef.current;
-        //     try {
-              
-        //       if (!input) throw new Error("Table element not found");
-              
-        //       const pdf = new jsPDF("p", "mm", "a4",'l');
-           
-          
-        //       const canvas = await html2canvas(input, {
-        //         scale: 2,
-        //         logging: false,
-        //         useCORS: true,
-        //         scrollY: -window.scrollY,
-        //         windowWidth: input.scrollWidth,
-        //         windowHeight: input.scrollHeight
-        //       });
-        //       // Add the image at the top of the document
-                
-          
-        //       const imgData2 = canvas.toDataURL("image/png");
-        //       const pageWidth = pdf.internal.pageSize.getWidth();
-        //       const imgWidth = pageWidth - 20;
-        //       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        //       pdf.addImage(imgData2, "PNG", 10, 7, imgWidth, imgHeight);
-        //       pdf.addImage(
-        //         imgData,
-        //         'PNG', // or 'PNG', 'WEBP', etc.
-        //         91.5, // x position (margin from left)
-        //         5, // y position (margin from top)
-        //         28, // width of the image in mm or points
-        //         17// height of the image in mm or points
-        //     );
-        //       pdf.save(`${item[name]}_${new Date().getDate()}.pdf`);
+        const handleSaveChanges = ()=>{
             
-              
-        //     } catch (error) {
-        //       console.error("PDF export failed:", error);
-        //       alert(`Failed to generate PDF: ${error.message}`);
-        //     }
-        //   };
+            router.post(route('schedules.save'),{
+                sessions:schedule
+            }, {
+                onStart : ()=> setIsLoading(true),
+                onFinish : ()=>setIsLoading(false),
+                onSuccess : ()=> {
+                    successNotify('schedule saved seccuessfuly')
+                    resetScheduleVersions();
 
+                },
+                onError : ()=> console.log('Error savign')
+                
+            })
+
+        }
+
+        console.log(schedule);
+        
     return (
     <>
-    <SchoolResourcesLayout>
-    {
+        <SchoolResourcesLayout>
+            { isLoading && <DotLoader />}
+            {
                isScheduleClearedTemporarly.is_temporary && (
                     <RestoreClearedSchedule 
                         entityName={owner[name]}
@@ -170,36 +144,39 @@ export default function Schedule({type,name,schedule,timeSlots,workingDays, owne
                         entity={type}
                         activeScheduleVersion={activeScheduleVersion}
                         scheduleVersionsLength={scheduleVersions.length}
-                        scheduleLength={schedule.length}
+                        scheduleLength={displayedSchedule.length}
                         handleClearSchedule={() => openModal('clearSchedule')}
                         handleSaveChanges={handleSaveChanges}
-                        item={owner}
+                        owner={owner}
                         name={name}
-                        numberHours={0}
+                        numberHours={displayedSchedule.length * 2.5}
                         handleExport = {()=>{}}
                     />
 
-                        <ScheduleContainer    
-                            sessions={scheduleSessions} 
-                            days={workingDays} 
-                        >
-                            {
-                                workingDays.map((day,dayIndex)=>
-                                    scheduleSessions.map((session, sessionIndex) => 
+                    <ScheduleContainer    
+                        sessions={scheduleSessions} 
+                        days={workingDays} 
+                    >
+                        {
+                            workingDays.map((day,dayIndex)=>
+                                scheduleSessions.map((session, sessionIndex) => 
                                     <RenderSessionCell
                                         key={`day-${dayIndex}-${session.start_time}`} 
                                         day={day} 
                                         dayIndex={dayIndex} 
-                                        session={session} 
+                                        time_slot={session} 
                                         sessionIndex={sessionIndex} 
-                                        schedule={schedule} 
+                                        schedule={displayedSchedule} 
                                         entity = {type}
                                         handleRowRightClick={handleRowRightClick}
-                                        entityName={owner[name]}
+                                        owner={owner}
+                                        name={name}
+                                        numberDays = {workingDays.length}
+                                        numberTimeSlots = {timeSlots.length}
                                     /> 
-                                ))
-                            }
-                        </ScheduleContainer> 
+                            ))
+                        }
+                    </ScheduleContainer> 
                 </div>
                )
             }
@@ -208,11 +185,13 @@ export default function Schedule({type,name,schedule,timeSlots,workingDays, owne
                 <ManagingScheduleModal 
                     onCancel={handleCancel}
                     session={selectedSession}
-                    handleSubmit={addSession}
+                    handleSubmit={modifySession}
                     restoreSession={restoreSession}
                     handleBackToOriginal={restoreToOriginal}
-                    entityName={owner[name]}
+                    owner={owner}
+                    name = {name}
                     entity = {type}
+                    available = {available}
                     
                 />
             )}
@@ -222,6 +201,9 @@ export default function Schedule({type,name,schedule,timeSlots,workingDays, owne
                     deleteSession={deleteSession}
                     handleCancel={handleCancel}
                     session={selectedSession}
+                    owner = {owner}
+                    type = {type}
+                    name = {name}
                 />
             )}
 
@@ -243,15 +225,9 @@ export default function Schedule({type,name,schedule,timeSlots,workingDays, owne
                         }}
                     >
                        <ContextMenu 
-                          
-                          handleCopy={copySession}
-                          handleCut={cutSession}
-                          handlePaste={pasteSession}
-                          handleDelete={()=> openModal('delete')}
-                          handleReplace={replaceSession}
-                          handleModify={()=> openModal('scheduleManaging')}
+                          handleDelete={()=> openModal('delete Session')}
+                          handleModify={handleModify}
                           selectedSession={selectedSession}
-                          selectedSessionToCopy={selectedSessionToCopy}
                           entity={type}
                        />
                     </div>

@@ -9,9 +9,22 @@ const links = [
         route_name: "schoolResources"
     },
     {
-        name: "Filieres",
+        name: "Levels",
+        route_name: "schoolResources"
+    },
+    {
+        name: "Fields",
         route_name: "schoolResources.fields"
     },
+    // {
+    //     name: "Years",
+    //     route_name: "schoolResources"
+    // },
+    
+    // {
+    //     name: "Options",
+    //     route_name: "schoolResources.groups"
+    // },
     {
         name: "Groups",
         route_name: "schoolResources.groups"

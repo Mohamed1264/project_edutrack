@@ -9,6 +9,9 @@ import { useForm , usePage} from '@inertiajs/react'
 export default function Login(){
     
     const { csrf } = usePage().props
+    const theme= usePage().props.theme
+    console.log(theme);
+    
     const { data, setData, post, processing, errors, reset,clearErrors } = useForm({
         user_name: '',
         password: '',
@@ -32,7 +35,7 @@ export default function Login(){
     
    
     return (
-        <div className="w-full flex justify-center items-center min-h-screen ">
+        <div className={`w-full flex justify-center items-center min-h-screen !${theme} `}>
             <div className="  w-1/2">
                 <div className="flex items-center justify-center gap-3 text-gray-700 dark:text-gray-50 mb-10">
                     <ClipboardList size={32}/>
@@ -40,7 +43,7 @@ export default function Login(){
                 </div>
                 {
                     errors.credentials ?
-                    <div className=' bg-red-900 text-white'>
+                    <div className=' bg-red-100 text-red-700 mb-2 w-full px-3 py-2 border rounded-md border-red-700 mx-auto md:max-w-sm'>
                         {errors.credentials}
                     </div>
                     :

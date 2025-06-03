@@ -1,23 +1,14 @@
 import { OctagonAlert } from "lucide-react"
-import { Switch } from "../../../../../Components/form/Switch"
-import { DateField } from "../../../../../Components/form/Fields"
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import useClickOutSide from "../../../../../utils/Hooks/useClickOutSide";
 
-export default function ClearScheduleModal({clearSchedule, handleCancel}) {
+export default function ClearScheduleModal({ handleCancel,selectedItem,  name, ClearSchedule}) {
    
     const popoverRef = useRef(null);
-    const [scheduleDeleteState, setScheduleDeleteState] = useState({
-        is_temporary: false,
-        start_date: null,
-        end_date: null
-    })
-    const handleChange = (name, value) => {
-        setScheduleDeleteState(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    }
+  
+
+ 
+  
  
     useClickOutSide(handleCancel, popoverRef)
 
@@ -45,30 +36,8 @@ export default function ClearScheduleModal({clearSchedule, handleCancel}) {
 
                     {/* Content */}
                     <div className="p-6 space-y-6">
-                        <Switch
-                            checked={scheduleDeleteState.is_temporary}
-                            label="Delete Temporarily"
-                            handleChange={()=>handleChange('is_temporary', !scheduleDeleteState.is_temporary)}
-                            name="is_temporary"
-                        />
-                        {scheduleDeleteState.is_temporary && (
-                            <div className="flex items-center justify-between gap-4">
-                                <DateField
-                                    name="start_date"
-                                    label="Start Date"
-                                    value={scheduleDeleteState.start_date || ''}
-                                    handleChange={handleChange}
-                                    handleFocus={()=>{}}
-                                />
-                                <DateField
-                                    name="end_date"
-                                    label="End Date"
-                                    value={scheduleDeleteState.end_date || ''}
-                                    handleChange={handleChange}
-                                    handleFocus={()=>{}}
-                                />
-                            </div> 
-                        )} 
+                      
+                       {selectedItem[name]} Schedule
                     </div>
     
                     {/* Footer */}
@@ -85,22 +54,12 @@ export default function ClearScheduleModal({clearSchedule, handleCancel}) {
                         </button>
                         <button
                             type="submit"
-                            onClick={(e)=>clearSchedule(e,scheduleDeleteState)}
+                            onClick={ClearSchedule}
                             className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg 
                                 hover:bg-red-700 focus:ring-2 focus:outline-none focus:ring-red-500 
                                 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
                         >
-                            {
-                                scheduleDeleteState.is_temporary ? (
-                                    <>
-                                        Yes, delete schedule {scheduleDeleteState.is_temporary && 'temporarily'}
-                                    </>
-                                ) : (
-                                    <>
-                                        Delete permanently
-                                    </>
-                                )
-                            }
+                            Delete permanently      
                         </button>
                     </div>
                 </div>

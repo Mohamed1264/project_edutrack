@@ -1,6 +1,6 @@
 // Generate a session cell for the schedule grid
 import {FullSession} from "./ScheduleComponents";
-import { initialValues,days, sessions } from "../../Data/ScheduleData";
+
 
 
 const info = {
@@ -21,53 +21,96 @@ const info = {
     }
 }
 
-const RenderSessionCell = ({day, dayIndex, session, sessionIndex,schedule,handleRowRightClick,entity,entityName}) => {
-    const matchingSessions = schedule.find(s => 
-        s.raw.day_id === day.id && session.id === s.raw.time_slot_id 
+const RenderSessionCell = ({
+    day,
+    dayIndex,
+    time_slot, 
+    sessionIndex,
+    schedule, 
+    entity,
+    handleRowRightClick,
+    owner,
+    name,
+    numberDays ,
+    numberTimeSlots
+}) => {
+    const matchingSession = schedule.find(s => 
+        s.raw.day_id === day.id && time_slot.id === s.raw.time_slot_id 
     );
     const {titleKey,sousTitleKey,key} = info[entity]
-    const isPresentiel = matchingSessions?.raw.status === 'Active' 
+  
+    const ownerName = owner[name];
+    const ownerId = owner.id;
+
+ 
     
 
     
     
-    const sessionData = {
-        ...initialValues,
-        idSession: new Date().getTime(),
-        day_of_week: day,
-        start_time: session.start,
-        end_time: session.end, 
-        [key] : entityName
+    const newSession = {
+        
+            'id' : new Date().getTime(),
+            'display' : {
+              'group' : entity === 'groups' ?  ownerName: null,
+              'room' :  entity === 'rooms' ?  ownerName : null,
+              'teacher'  :  entity === 'teachers' ?  owner.user.full_name : null,
+              'day' : day.day_name,
+              'time_slot' : `${time_slot.start_time} - ${time_slot.end_time}`,
+            },
+            'raw' : {
+              'group_id' :  entity === 'groups' ?  ownerId: null,
+              'room_id' :  entity === 'rooms' ?  ownerId: null,
+              'teacher_id' :  entity === 'teachers' ?  ownerId: null,
+              'time_slot_id' : time_slot.id,
+              'day_id' : day.id,
+              'replace_session_id' : null,
+              'status' : 'Active',
+              'type' : 'Presential',
+              'is_temporary' : false,
+              'temporary_from' : null,
+              'temporary_to' : null,
+              'version_start_date' : null,
+              'version_end_date' : null,
+            },
+            'action' : 'create',
+            'is_saved' : false,
+
+            
     };
+    const isSessionExits = matchingSession?.id;
+    const session = isSessionExits ? matchingSession :  newSession
+   
     
     return (
         <div 
             key={`${dayIndex}-${sessionIndex}`} 
-            className={getClassName(sessionIndex,dayIndex,matchingSessions?.idSession,entity)}
-            onContextMenu={(e) => handleRowRightClick(matchingSessions?.id ? matchingSessions : sessionData,e)}
+            className={getClassName(sessionIndex,dayIndex,isSessionExits,entity,numberDays,numberTimeSlots)}
+            onContextMenu={(e) => handleRowRightClick(session,e)}
 
         >
-            {matchingSessions?.id && (
+            {isSessionExits && (
                 <FullSession
-                    title  = {matchingSessions.display[titleKey]}
-                    sousTitle = {(entity === 'room' || isPresentiel) ? matchingSessions.display[sousTitleKey] : 'A distance' }
-                    status={matchingSessions.raw.status}
+                    title  = {matchingSession.display[titleKey]}
+                    sousTitle = { matchingSession.display[sousTitleKey]}
+                    status={matchingSession.raw.status}
+                    type = {matchingSession.raw.type}
+                   
                 />
             )}
         </div>
     );
 };
 
-const getClassName = (sessionIndex , dayIndex ,idSession,entity) => {
-    const isLastDay = dayIndex === days.length - 1;
+const getClassName = (sessionIndex , dayIndex ,isSessionExits,entity , daysLength,sessionsLength) => {
+    const isLastDay = dayIndex === daysLength - 1;
     const isOddSession = sessionIndex === 1 || sessionIndex === 3;
     const isEvenSession = sessionIndex === 0 || sessionIndex === 2;
-    const isLastSession = sessionIndex === sessions.length - 1;
+    const isLastSession = sessionIndex === sessionsLength - 1;
     return (
         `
         col-start-${sessionIndex + 2} row-start-${dayIndex + 2} 
-                ${!idSession && 'hover:bg-indigo-50 dark:hover:bg-indigo-900/20'}
-                ${(sessionIndex === 1 || ( entity !== 'group' && sessionIndex === 3 )) && 'mr-2'}  
+                ${!isSessionExits && 'hover:bg-indigo-50 dark:hover:bg-indigo-900/20'}
+                ${(sessionIndex === 1 || ( entity !== 'groups' && sessionIndex === 3 )) && 'mr-2'}  
                 ${isLastDay && isOddSession && 'rounded-br-lg'}
                 ${isLastDay && isEvenSession && 'rounded-bl-lg'}
                 ${isLastDay && isLastSession && 'rounded-b-lg'}

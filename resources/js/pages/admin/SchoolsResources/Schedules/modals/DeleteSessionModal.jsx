@@ -1,25 +1,20 @@
-import { OctagonAlert, Calendar } from "lucide-react"
-import { Switch } from "../../../../../Components/form/Switch"
-import { DateField } from "../../../../../Components/form/Fields"
-import { useRef, useState } from "react";
+import { OctagonAlert,Users } from "lucide-react"
+
+import { useRef } from "react";
 import useClickOutSide from "../../../../../utils/Hooks/useClickOutSide";
 
-export default function DeleteSessionModal({deleteSession, handleCancel,session}) {
-    const {is_temporary, start_date, end_date,status} = session;
+export default function DeleteSessionModal({deleteSession, handleCancel,session , owner,type ,name}) {
     const popoverRef = useRef(null);
-    const [sessionDeleteState, setSessionDeleteState] = useState({
-        is_temporary: is_temporary,
-        start_date: start_date,
-        end_date: end_date
-    })
-    const handleChange = (name, value) => {
-        setSessionDeleteState(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    }
  
     useClickOutSide(handleCancel, popoverRef)
+    const ownerName = owner[name]
+    console.log(session);
+    
+
+    const getGender = (gender) => {
+        return gender === 'Male' ? 'Mr' : 'Mme'
+    }
+    const title = type === 'teachers' ? `${getGender(owner.user.gender)}.${owner.user.full_name}` : ownerName
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center w-full h-full bg-black/50 backdrop-blur-sm">
@@ -45,55 +40,19 @@ export default function DeleteSessionModal({deleteSession, handleCancel,session}
 
                     {/* Content */}
                     <div className="p-6 space-y-6">
-                        {
-                            status === 'deleted' ? (
-                               
-                            <div className="flex flex-col items-center justify-center gap-6 py-8">
-                                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-                                    <Calendar className="w-6 h-6 text-red-600 dark:text-red-400" />
-                                </div>
-                                <div className="text-center">
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                        You are delete this session temporarily
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400">
-                                        From {session?.start_date} to {session?.end_date}
-                                    </p>
-                                </div>
-                                
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                                <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                             </div>
-                        
-                            ) : (
-                                <>
-                                <Switch
-                                    checked={sessionDeleteState.is_temporary}
-                                    label="Delete Temporarily"
-                                    handleChange={()=>handleChange('is_temporary', !sessionDeleteState.is_temporary)}
-                                    name="is_temporary"
-                                />
-                                {sessionDeleteState.is_temporary && (
-                                    <div className="flex items-center justify-between gap-4">
-                                                <DateField
-                                                    name="start_date"
-                                                    label="Start Date"
-                                                    value={sessionDeleteState.start_date || ''}
-                                                    handleChange={handleChange}
-                                                    handleFocus={()=>{}}
-                                                />
-                                                <DateField
-                                                    name="end_date"
-                                                    label="End Date"
-                                                    value={sessionDeleteState.end_date || ''}
-                                                    handleChange={handleChange}
-                                                    handleFocus={()=>{}}
-                                                />
-                                    </div> 
-                                )} 
-                                    </>      
-                                
-
-                            )
-                        }
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                    {title }
+                                </h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    {session.display.day} • {session.display.time_slot}
+                                </p>
+                            </div>
+                        </div>
                         
                 </div>
     
@@ -111,22 +70,12 @@ export default function DeleteSessionModal({deleteSession, handleCancel,session}
                         </button>
                         <button
                             type="submit"
-                            onClick={(e)=>deleteSession(e,sessionDeleteState)}
+                            onClick={(e)=>deleteSession(e)}
                             className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg 
                                 hover:bg-red-700 focus:ring-2 focus:outline-none focus:ring-red-500 
                                 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
                         >
-                        {
-                            status === 'active' ? (
-                                <>
-                                    Yes, delete session {sessionDeleteState.is_temporary && 'temporarily'}
-                                </>
-                            ) : (
-                                <>
-                                    Delete permanently
-                                </>
-                            )
-                        }
+                        Delete
                         </button>
                     </div>
                 </div>

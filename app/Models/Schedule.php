@@ -30,7 +30,8 @@ class Schedule extends Model
         'term_id',
         'version_start_date',
         'version_end_date',
-        'is_temporaire'
+        'is_temporary',
+        'type',
     ];
 
     public function school (){
@@ -57,5 +58,10 @@ class Schedule extends Model
 
     public function sessions(){
         return $this->hasMany(ClassSession::class,'schedule_id');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNull('version_end_date');
     }
 }

@@ -24,6 +24,7 @@ use Database\Seeders\RoomSeeder;
 use Database\Seeders\SchoolYearSeeder;
 use Database\Seeders\TermTypeSeeder;
 use Database\Seeders\TermSeeder;
+use Database\Seeders\SchoolWorkingDaySeeder;
 
 
 class DatabaseSeeder extends Seeder
@@ -54,6 +55,7 @@ class DatabaseSeeder extends Seeder
             SchoolYearSeeder::class,
             TermTypeSeeder::class,
             TermSeeder::class,
+            SchoolWorkingDaySeeder::class,
         ]);
     }
 }

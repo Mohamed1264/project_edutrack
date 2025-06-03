@@ -85,21 +85,27 @@ class School extends Model
         return $this->hasMany(SchoolStructureInstance::class,'school_id');
     }
     public function getStructureInstanceAndUnit($unit){
-       
-        return DB::table('schools')
-        ->join('school_structure_instances', 'schools.id', '=', 'school_structure_instances.school_id')
-        ->join('school_structure_units', 'school_structure_units.id', '=', 'school_structure_instances.school_structure_unit_id')
-        ->join('structure_units', 'structure_units.id', '=', 'school_structure_units.unit_id')
-        // Add left join for parent instance
-        ->leftJoin('school_structure_instances as parent', 'school_structure_instances.parent_id', '=', 'parent.id')
-        ->where('schools.id', $this->id)
-        ->where('structure_units.unit_name', $unit)
-        ->select(
-            'school_structure_instances.name as instance_name',
-            'structure_units.unit_name',
-            'parent.name as parent_name'  // Add parent name to select
-        )
-        ->get();
+        return SchoolStructureInstance::where('school_id', $this->id)
+        ->whereHas('school_structure_unit.unit', function($query) use ($unit) {
+            $query->where('unit_name', $unit);
+        })
+        ->with(['school_structure_unit.unit', 'parent:id,name'])
+        ->select([
+            'id',
+            'name as instance_name',
+            'school_id',
+            'school_structure_unit_id',
+            'parent_id'
+        ])
+        ->get()
+        ->map(function($instance) {
+            return [
+                'id' => $instance->id,
+                'instance_name' => $instance->instance_name,
+                'unit_name' => $instance->school_structure_unit->unit->unit_name,
+                'parent_name' => $instance->parent->name ?? null,
+            ];
+        });
         
     }
     public function getStructureInstanceByParentId($parentId){
@@ -120,6 +126,10 @@ class School extends Model
         ->get();
         
     }
+
+    public function levels () { 
+
+    }
     
 
     public function groups(){
@@ -134,16 +144,7 @@ class School extends Model
         ->select('groups.id','SSI.name','groups.type')
         ->get();
     }
-    public function getGroupInfo($id){
-        return DB::table('groups')
-        ->join('schools','schools.id','=','groups.school_id')
-        ->join('school_structure_instances as SSI','SSI.id' ,'=','groups.school_structure_instance_id')
-        ->where('groups.school_id',$this->id)
-        ->where('groups.id',$id)
-        ->select('groups.id','SSI.name','groups.type')
-        ->get();
-    }
-
+    
     public function modules (){
         return $this->hasMany(Module::class,'school_id');
     }
@@ -209,7 +210,7 @@ public function timeSlots()
 public function activeTimeSlots (){
     return  $this->timeSlots()->where('mode_id',$this->activeMode()->id)
     ->where('is_active',true)
-    ->select('id','start_time','end_time')->get()->all();
+    ->select('id','start_time','end_time','type_id')->get()->all();
 }
 public function timeSlotsGroupedByType()
 {
@@ -252,23 +253,7 @@ public function rooms()
 
 
 
-public function getActiveSessionInstances( $ownerId, $ownerFK)
-    {
-        return  DB::table('session_instances as SI')
-        ->join('schools as S' , 'S.id','=','SI.school_id')
-        ->join('session_templates as ST' , 'ST.id','=','SI.session_template_id')
-        ->join('week_days as D' , 'D.id','=','SI.day_id')
-        ->join('time_slots as TS' , 'TS.id','=','SI.time_slot_id')
-        ->join('session_versions as SV' , 'SV.id','=','SI.version_id')
-        ->where('SI.school_id',$this->id)
-        ->where(`ST.{$ownerFK}`,$ownerId)
-        ->where(`SV.is_current`,true)
-        ->select('S.id','SI.status','SI.start_date','SI.end_time',
-        'D.id','D.day_name','TS.id','TS.start_date','TS.end_date',
-        'ST.teacher_id','ST.group_id','ST.room_id')
-        ->get();
-        ;
-    }
+
 
 public function events()
 {

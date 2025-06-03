@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Schedules;
 
 use App\Http\Controllers\Controller;
-use App\Models\SessionInstance;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\Account;
 use App\Models\Schedule;
+use App\Models\Room;
+use App\Models\Group;
+use LDAP\Result;
+
+use function Symfony\Component\Clock\now;
 
 class ScheduleController extends Controller
 {
+   
     public function showSchedulesList($type){
         $school = Auth::user()->school;  
         if (!$school) {
@@ -38,7 +44,7 @@ class ScheduleController extends Controller
 
     }
 
-    public function getSchedule(string $type, int $id)
+    public function show(string $type, int $id)
     {
         $school = Auth::user()->school;
         
@@ -55,47 +61,41 @@ class ScheduleController extends Controller
                 $teacher = Account::with('user:user_key,full_name,gender')
                 ->where('school_key', $school->school_key)
                 ->where('id', $id)
-                ->get(['id', 'user_key']);
+                ->get(['id', 'user_key'])->first();
          ;
                 $schedule  = Schedule::where('teacher_id', $id)
                   ->where('school_id', $school->id)
                   ->where('version_end_date', null)
                   ->get()->map(function ($session){
-                    return [
-                      'id' => $session->id,
-                      'display' => [
-                        'group' => $session->group->structureInstance->name,
-                        'room' => $session->room->room_name,
-                        'teacher' => $session->teacher->user->full_name,
-                        'day' => $session->day->day_name,
-                        'time_slot' => `{$session->time_slot->start_time} - {$session->time_slot->start_time}`,
-                      ],
-                      'raw' => [
-                        'group_id' => $session->group_id,
-                        'room_id' => $session->room_id,
-                        'teacher_id' => $session->teacher_id,
-                        'time_slot_id' => $session->time_slot_id,
-                        'day_id' => $session->day_id,
-                        'status' => $session->status,
-                        'temporary_from' => $session->temporary_from,
-                        'temporary_to' => $session->temporary_to,
-                        'version_start_date' => $session->version_start_date,
-                        'version_end_date' => $session->version_end_date,
-                      ],
-                    ];
+                    return $this->session($session);
                   });
+                  
                 if (!$teacher) abort(404, 'Teacher not found.');
                 return $this->renderSchedule($teacher,$schedule, $type, 'full_name', $timesSlots, $workingDays);
             
             case 'groups':
-                $group = $school->getGroup($id);
-                $schedule  =  $school->schedules()->where('version_end_date',null)->where('group_id',$id)->get();
+                $group = Group::getGroupInfo($id,$school->id);
+                $schedule  = Schedule::where('group_id', $id)
+                  ->where('school_id', $school->id)
+                  ->where('version_end_date', null)
+                  ->get()->map(function ($session){
+                    return $this->session($session);
+                  });
+                  $timesSlots =collect( $school->activeTimeSlots())->filter(function ($timeSlot){
+                    return $timeSlot->type_id !== 3;
+                  });
+                
                 if (!$group) abort(404, 'Group not found.');
                 return $this->renderSchedule($group,$schedule, $type, 'name', $timesSlots, $workingDays);
                     
             case 'rooms':
                 $room = $school->rooms->find($id);
-                $schedule  =  $school->schedules()->where('version_end_date',null)->where('room_id',$id)->get();
+                $schedule  = Schedule::where('room_id', $id)
+                ->where('school_id', $school->id)
+                ->where('version_end_date', null)
+                ->get()->map(function ($session){
+                  return $this->session($session);
+                });
                 if (!$room) abort(404, 'Room not found.');
                 return $this->renderSchedule($room, $schedule,$type, 'room_name', $timesSlots, $workingDays);
             
@@ -104,10 +104,34 @@ class ScheduleController extends Controller
         }
     }
 
-    public function modifySchedule($id){
-
-
-       return 'fjff';
+    public function session(Schedule $session){
+         return [
+           'id' => $session->id,
+           'display' => [
+             'group' => $session->group->structureInstance->name,
+             'room' => $session->type === 'Presential' ? $session->room->room_name : null,
+             'teacher' => $session->teacher->user->full_name,
+             'day' => $session->day->day_name,
+             'time_slot' => $session->time_slot->start_time.' - '.$session->time_slot->end_time,
+           ],
+           'raw' => [
+             'group_id' => $session->group_id,
+             'room_id' => $session->room_id,
+             'teacher_id' => $session->teacher_id,
+             'time_slot_id' => $session->time_slot_id,
+             'day_id' => $session->day_id,
+             'replace_session_id' => $session->replace_session_id,
+             'status' => $session->status,
+             'type' => $session->type,
+             'is_temporary' => $session->is_temporary,
+             'temporary_from' => $session->temporary_from,
+             'temporary_to' => $session->temporary_to,
+             'version_start_date' => $session->version_start_date,
+             'version_end_date' => $session->version_end_date,
+           ],
+           'is_saved'=>true,
+         ];
+       
     }
 
     protected function renderScheduleList ($data,$type,$name) { 
@@ -123,13 +147,153 @@ class ScheduleController extends Controller
     {  
         return Inertia::render('admin/SchoolsResources/Schedules/Schedule', [
             'owner' => $owner,
-            'schedule'=>$schedule,
+            'sessions'=>$schedule,
             'type' => $type,
             'name' => $nameField,
             'timeSlots' => $timeSlots,
             'workingDays' => $workingDays,
-          
         ]);
     }
+
+    public function getAvailability(Request $request)
+{
+    $dayId = $request->query('day_id');
+    $timeSlotId = $request->query('time_slot_id');
+    $schoolId =  Auth::user()->school->id;
+    $schoolKey =  Auth::user()->school->school_key;
+
+    // Get unavailable rooms
+    $busyRoomIds = Schedule::where('day_id', $dayId)
+        ->where('time_slot_id', $timeSlotId)
+        ->where('school_id', $schoolId)
+        ->where('version_end_date',null)
+        ->pluck('room_id');
+
+    // Get unavailable groups
+    $busyGroupIds = Schedule::where('day_id', $dayId)
+        ->where('time_slot_id', $timeSlotId)
+        ->where('school_id', $schoolId)
+        ->where('version_end_date',null)
+        ->pluck('group_id');
+
+    $busyTeachersIds = Schedule::where('day_id', $dayId)
+        ->where('time_slot_id', $timeSlotId)
+        ->where('school_id', $schoolId)
+        ->where('version_end_date',null)
+        ->pluck('teacher_id');
+
+    // Get available rooms and groups
+    $availableRooms = Room::where('school_id', $schoolId)
+        ->whereNotIn('id', $busyRoomIds)
+        ->get(['id', 'room_name']);
+
+    $availableGroups = Group::with('structureInstance:id,name')
+        ->where('school_id', $schoolId)
+        ->whereNotIn('id',$busyGroupIds)
+        ->get(['id','school_structure_instance_id'])
+        ->map(function($group){ 
+            return [
+                'id'=>$group->id, 
+                'name'=>$group->structureInstance->name
+            ];
+        });
+
+
+
+    $availableTeachers = Account::with('user:user_key,full_name')
+        ->where('school_key', $schoolKey)
+        ->whereNotIn('id',$busyTeachersIds)
+        ->get(['id','user_key'])
+        ->map(function($account){ 
+            return [
+                'id'=>$account->id, 
+                'name'=>$account->user->full_name
+            ];
+        });
+
+    return response()->json([
+        'available'=> [
+        'rooms' => $availableRooms,
+        'groups' => $availableGroups,
+        'teachers' => $availableTeachers,  
+    ] 
+    ]);
+}
+
+
+public function save(Request $request){
+    $sessions = $request->sessions;
+    $school = Auth::user()->school;
+    $activeTerm = $school->terms()->where('is_active',true)->get()->first();
+
+    foreach ($sessions as $session) {
+        if (!isset($session['action']) || !$session['action']) {
+            continue ;
+        }
+     
+
+        switch ($session['action']) {
+            case 'create':
+                $raw = $session['raw'];
+                Schedule::create([
+                    ...$raw,
+                    'school_id'=>$school->id,
+                    'term_id'=>$activeTerm->id,
+                    'version_start_date'=>now(),
+                ]);
+                break;
+            case 'update':
+                $raw = $session['raw'];
+                $session = Schedule::find($session['id']);
+                $session->update([
+                        'status' =>'Archived',
+                        'version_end_date'=>now(),
+                ]);
+                Schedule::create([
+                    ...$raw,
+                    'school_id'=>$school->id,
+                    'term_id'=>$activeTerm->id,
+                    'version_start_date'=>now(),
+                ]);
+                break;
+            case 'delete':
+                    $raw = $session['raw'];
+                    $session = Schedule::find($session['id']);
+                    $session->update([
+                        'status' =>'Archived',
+                        'version_end_date'=>now(),
+                    ]);
+                    break;
+            
+            default:
+                # code...
+                break;
+        }
+    }
+
+    return back()->with('success','sessions saved seccussfuly');
+
+
+}
+
+
+
+public function clearSchedule (Request $request){
+    $type = $request->type;
+    $id = $request->id;
+    $foreginKey =  match ($type) {
+        'teachers' => 'teacher_id',
+         'groups'=> 'group_id',
+         'rooms'=> 'room_id',
+    };
+    $isExists = Schedule::where($foreginKey,$id)
+    ->where('version_end_date',null)->exists();
+    if ($isExists) {
+        return to_route('schoolResources.schedules.list',$type)->with('error','schedule already empty');
+    }
+    Schedule::where($foreginKey,$id)->update(['version_end_date' => now()]);
+    return to_route('schoolResources.schedules.list',$type)->with('success','schedule cleared successfuly');
+   
+}
 
 }

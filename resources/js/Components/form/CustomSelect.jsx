@@ -42,14 +42,14 @@ export default function Select({ config }) {
     const handleChange = (value) => setSearch(value.toLowerCase())
     
     const select = (obj) => {
-        onChange(name, obj[nameKey])
-        setCurrentValue(obj[nameKey])
+        onChange(nameKey, obj)
+        setCurrentValue(obj[name])
         setIsSelectItem(false)
         setSearch('')
     }
 
     const data = items.filter(item => 
-        String(item[nameKey]).toLowerCase().startsWith(search)
+        String(item[name]).toLowerCase().startsWith(search)
     )
 
     return (
@@ -110,7 +110,7 @@ export default function Select({ config }) {
                                     className={`
                                         block p-2 rounded-md text-sm cursor-pointer
                                         transition-colors duration-200
-                                        ${currentValue === (item[nameKey])
+                                        ${currentValue === (item[name])
                                             ? 'bg-purple-50 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700'
                                             : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
                                         }
@@ -118,7 +118,7 @@ export default function Select({ config }) {
                                     `}
                                     onClick={() => select(item)}
                                 >
-                                    {item[nameKey]}
+                                    {item[name]}
                                 </span>
                             ))
                         ) : (
