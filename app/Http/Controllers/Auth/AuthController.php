@@ -42,7 +42,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
         
 
-        switch($account->user->role->role_name){
+        switch($account->user->role_id){
             case 'Admin' : return to_route('admin.dashboard');
             case 'Absence Manager' : return to_route('absenceManager.dashboard');
             case 'Teacher' : return to_route('teacher.dashboard');

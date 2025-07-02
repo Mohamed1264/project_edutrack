@@ -8,17 +8,25 @@ use App\Http\Controllers\Configuration\SchoolWorkingDayController;
 use App\Http\Controllers\Configuration\TimeSlotsController;
 use App\Http\Controllers\Schedules\ScheduleController;
 use App\Http\Controllers\Preferences\PreserencesController;
+use App\Http\Controllers\HumanResources\AbsenceManagerController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\RedirectTo;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HumanResources\HumanResourcesController;
+use App\Http\Controllers\JustificationAbsenceController;
+use App\Http\Controllers\AbsenceListController;
+
 
 // Public routes - no middleware
 Route::middleware([RedirectTo::class])->group(function (){
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
     
+});
+
+Route::get('/', function(){
+    return redirect()->route('login');
 });
 
 // Protected routes by role
@@ -76,13 +84,30 @@ Route::middleware([Authenticate::class, CheckRole::class.':Admin'])->group(funct
 
 });
 
-Route::middleware([Authenticate::class, CheckRole::class.':Absence Manager'])->group(function() {
-    Route::get('/absenceManager', [DashboardController::class , 'absenceManagerDashBoard'])->name('absenceManager.dashboard');
-    Route::get('/students', [DashboardController::class , 'absenceManagerDashBoard'])->name('students');
-    Route::get('/justification', [DashboardController::class , 'absenceManagerDashBoard'])->name('justification');
-    Route::get('/absence/lists', [DashboardController::class , 'absenceManagerDashBoard'])->name('absence.lists');
-    Route::get('/schedules/lists', [DashboardController::class , 'absenceManagerDashBoard'])->name('schedules.lists');
+Route::middleware([Authenticate::class, CheckRole::class . ':Absence Manager'])->group(function () {
 
+    Route::get('/absenceManager', [DashboardController::class, 'absenceManagerDashBoard'])->name('absenceManager.dashboard');
+
+    Route::get('/students', [AbsenceManagerController::class, 'student'])->name('students');
+    Route::get('/students/addStudent', [AbsenceManagerController::class, 'create'])->name('students.create');
+    Route::get('/students/addStudent/more', [AbsenceManagerController::class, 'createMore'])->name('students.create');
+    Route::post('/students', [AbsenceManagerController::class, 'store'])->name('students.store');
+
+    Route::prefix('students')->name('students.')->group(function () {
+        Route::get('{user_key}/edit', [AbsenceManagerController::class, 'edit'])->name('editStudent');
+        Route::put('{user_key}', [AbsenceManagerController::class, 'update'])->name('updateStudent');
+        Route::get('{user_key}', [AbsenceManagerController::class, 'show'])->name('showStudent');
+        Route::delete('{user_key}', [AbsenceManagerController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::get('/justification', [JustificationAbsenceController::class, 'index'])->name('justification');
+    Route::get('/justify/{ids}/{justif}', [JustificationAbsenceController::class, 'confirm'])->name('ConfirmJustification');
+
+
+
+
+    Route::get('/absence/lists', [AbsenceListController::class, 'index'])->name('absence.lists');
+    Route::get('/schedules/lists', [DashboardController::class, 'absenceManagerDashBoard'])->name('schedules.lists');
 });
 
 

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '@inertiajs/react'
 import {users,groups} from '../../../../Data/Users'
 import SearchBar from '../../../../Components/Common/SearchBar'
 import { useState } from 'react'

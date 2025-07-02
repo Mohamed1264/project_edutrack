@@ -1,5 +1,5 @@
 import { CalendarFold } from "lucide-react"
-import { Link, Outlet, useLocation } from "react-router-dom"
+import { Link, Outlet, useLocation } from "@inertiajs/react"
 export default function History () { 
     const {pathname} = useLocation()
     const getStyle = (path) => {

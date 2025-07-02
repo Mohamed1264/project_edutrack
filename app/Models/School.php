@@ -28,6 +28,7 @@ use App\Models\SchoolJustificationReason;
 use App\Models\Absence;
 use App\Models\SchoolStructureInstance;
 use App\Models\WeekDay;
+use App\Models\User;
 
 use Carbon\Carbon;
 class School extends Model
@@ -75,7 +76,10 @@ class School extends Model
      }
 
     public function getUsersByRole($roleId){
-        return $this->users->where('role_id',$roleId)->values();
+        return User::join('accounts', 'users.user_key', '=', 'accounts.user_key')
+            ->where('accounts.school_key', $this->school_key)
+            ->where('users.role_id', $roleId)
+            ->select('users.*', 'accounts.id as account_id');
     }
 
     public function school_structure(){

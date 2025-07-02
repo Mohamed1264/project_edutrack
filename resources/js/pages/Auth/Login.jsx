@@ -18,6 +18,7 @@ export default function Login(){
       
       })
       const handleSubmit = (e) => {
+        console.log(data)
         e.preventDefault()
     
         post('/login',{

@@ -1,68 +1,109 @@
-import { Link } from "@inertiajs/react";
-import { useModalContext } from "../../utils/Context/ModalContext";
-import { CalendarFold, Edit, RefreshCcw, SquareArrowOutUpRight, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Link, router } from "@inertiajs/react";
+import DeleteModal from "../Modals/DeleteModal";
+import { route } from 'ziggy-js';
+import {
+  Eye, Pencil, Trash2, Lock, User, Info, MoreHorizontal, LogOut, Settings, ChevronRight
+} from "lucide-react";
 
-const icon_size = 16;
-const actionsIcons = {
-  edit: <Edit size={icon_size} />,
-  profile: <SquareArrowOutUpRight size={icon_size} />,
-  delete: <Trash2 size={icon_size} />,
-  schedule: <CalendarFold size={icon_size} />,
-  resetPassword: <RefreshCcw size={icon_size} />
+const iconMap = {
+  view: <Eye size={18} className="text-blue-500" />,
+  edit: <Pencil size={18} className="text-emerald-500" />,
+  delete: <Trash2 size={18} className="text-rose-500" />,
+  reset: <Lock size={18} className="text-violet-500" />,
+  profile: <User size={18} className="text-indigo-500" />,
+  info: <Info size={18} className="text-cyan-500" />,
+  settings: <Settings size={18} className="text-gray-500" />,
+  logout: <LogOut size={18} className="text-amber-500" />,
 };
 
-const actionsTitles = {
-  edit: 'Edit',
-  profile: 'Profile',
-  delete: 'Delete',
-  schedule: 'Schedule',
-  resetPassword: 'Reset Password'
-};
+export default function DropDownMenu({ config, item, position = "right-0" }) {
+  const { links = {}, modals = [], primaryKey, path } = config || {};
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
 
-function DropDownMenu({ style, config }) {
-  const { links, modals, key, path } = config;
-  const { selectedItem, setActiveModal } = useModalContext();
-  const linksKeys = Object.keys(links);
+  const handleDelete = () => {
+    console.log(path);
+    
+    router.delete(route(path +'.destroy', item?.[primaryKey]), {
+      onSuccess: () => setShowDeleteModal(false),
+      onError: () => setShowDeleteModal(false),
+    });
+  };
+
+  const handleItemClick = (action) => {
+    if (action === "delete") {
+      setShowDeleteModal(true);
+    }
+    // Add other specific actions if needed
+  };
+
+  const renderMenuItem = (label, icon, onClick, hasSubmenu = false) => (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-lg ${
+        label.toLowerCase() === "delete" ? "text-rose-600 dark:text-rose-400" : ""
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        {icon}
+        <span className="capitalize font-medium text-gray-700 dark:text-gray-300">
+          {label}
+        </span>
+      </div>
+      {hasSubmenu && <ChevronRight size={16} className="text-gray-400" />}
+    </button>
+  );
 
   return (
-    <div 
-      className="absolute min-w-[180px] z-50 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 backdrop-blur-sm" 
-      style={style}
-    >
-      <div className="p-1.5 space-y-0.5">
-        {linksKeys.map(linkKey => (
-          <Link
-            key={linkKey}
-            href={`${path}/${links?.[linkKey]}/${selectedItem?.[key]}`}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200
-              text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20
-              hover:text-purple-700 dark:hover:text-purple-400"
-          >
-            <span className="text-gray-400 dark:text-gray-500 group-hover:text-purple-500">
-              {actionsIcons?.[linkKey]}
-            </span>
-            {actionsTitles[linkKey]}
-          </Link>
-        ))}
-        {modals.map(modal => (
-          <button
-            key={modal}
-            className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200
-              ${modal === 'delete' 
-                ? 'text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300' 
-                : 'text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-700 dark:hover:text-purple-400'
-              }`}
-            onClick={() => setActiveModal(modal)}
-          >
-            <span className={`${modal === 'delete' ? 'text-red-400 dark:text-red-500' : 'text-gray-400 dark:text-gray-500'} group-hover:text-purple-500`}>
-              {actionsIcons[modal]}
-            </span>
-            {actionsTitles[modal]}
-          </button>
-        ))}
+    <>
+      <div className={`absolute ${position} mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-2 w-64 z-50 animate-fade-in`}>
+        <ul className="space-y-1">
+          {Object.entries(links).map(([label, routeName], index) => {
+            const icon = iconMap[label.toLowerCase()] || <MoreHorizontal size={18} />;
+            
+            return (
+              <li key={index}>
+                {label.toLowerCase() === "delete" ? (
+                  renderMenuItem(label, icon, () => handleItemClick("delete"))
+                ) : (
+                  <Link
+                    href={route(routeName, item?.[primaryKey])}
+                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-lg"
+                  >
+                    {icon}
+                    <span className="capitalize font-medium text-gray-700 dark:text-gray-300">
+                      {label}
+                    </span>
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+
+          {modals && modals.filter((modal) => typeof modal?.label === "string")
+            .map((modal, index) => {
+              const label = modal.label.toLowerCase();
+              const icon = iconMap[label] || <MoreHorizontal size={18} />;
+              
+              return (
+                <li key={`modal-${index}`}>
+                  {renderMenuItem(modal.label, icon, modal.open, modal.submenu)}
+                </li>
+              );
+            })}
+        </ul>
+
       </div>
-    </div>
+
+      {showDeleteModal && (
+        <DeleteModal
+          name={item?.full_name}
+          itemName={item?.full_name}
+          handleDelete={handleDelete}
+          resetModal={() => setShowDeleteModal(false)}
+        />
+      )}
+    </>
   );
 }
-
-export default DropDownMenu;

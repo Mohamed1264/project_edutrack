@@ -23,7 +23,7 @@ class AccountFactory extends Factory
             'user_key' => User::inRandomOrder()->first()->user_key,
             'teacher_type_id'=>null,
             'password'=>Hash::make('password'),
-            'original_password'=>Hash::make('password'),
+            'original_password'=>'password',
             'is_active'=>false,
             'last_reset_password_at'=>null,
             'last_login_at'=>null,

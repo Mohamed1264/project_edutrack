@@ -3,7 +3,6 @@ import { useForm, router } from '@inertiajs/react';
 import { Form, FormContainer } from "../../../Components/form/GlobalComponents";
 import { formsHook } from "../../../utils/Hooks/formsHook";
 import { RatioField } from "../../../Components/form/RatioField";
-import { CustomSelect } from "../../../Components/form/CustomSelect";
 import { DateField } from "../../../Components/form/Fields";
 import { TextField, PasswordField } from "../../../Components/form/Inputs";
 import ConfirmAddModal from "../../../Components/Modals/ConfirmAdding";
@@ -12,7 +11,8 @@ import { calculateAge } from "../../../utils/calcAge";
 import { generateStrongPassword } from "../../../utils/generatePassword";
 import Layout from '../../../layouts/Layout';
 
-export default function EditUser({ user, teacher, account }) {
+
+export default function EditUser({ user, account }) {
   const [isConfirmAddingOpen, setIsConfirmAddingOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,17 +24,13 @@ export default function EditUser({ user, teacher, account }) {
     matricule: user.user_key,
     password: account.original_password,
     phone: user.phone_number,
-    role: String(user.role_id), // Ensure it's a string for comparisons
-    type:  account.teacher_type_id,
   };
-
 
   const validation = {
     fullName: {
-        message: 'The name should not contain invalid symbols or numbers',
-        regex: /^[A-Za-z]+\.?\s[A-Za-z]+([-'’][A-Za-z]+)*(\s[A-Za-z]+([-'’][A-Za-z]+)*)*$/,
-      },
-      
+      message: 'The name should only contain letters, spaces, apostrophes, or hyphens',
+      regex: /^[A-Za-zÀ-ÿ]+(?:[-'’][A-Za-zÀ-ÿ]+)*(?:\s[A-Za-zÀ-ÿ]+(?:[-'’][A-Za-zÀ-ÿ]+)*)*$/,
+    },
     birthDate: {
       message: 'The age should be between 18 and 65',
       validateFunc: (birthDate) => {
@@ -43,9 +39,9 @@ export default function EditUser({ user, teacher, account }) {
       },
     },
     email: {
-        regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        message: 'Invalid email, enter a valid professional email',
-      },      
+      regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      message: 'Invalid email, enter a valid professional email',
+    },
     phone: {
       message: 'Invalid phone number',
       regex: /^(\+?\d{1,3}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}$/,
@@ -56,6 +52,8 @@ export default function EditUser({ user, teacher, account }) {
     },
   };
 
+  // formsHook should return a handleChange that accepts (field, value)
+  // Otherwise adjust accordingly.
   const {
     values,
     errors,
@@ -66,10 +64,12 @@ export default function EditUser({ user, teacher, account }) {
     isSubmitDisabled,
   } = formsHook(initialValues, validation, 'add');
 
+  // Called when the form is submitted (before final confirm)
   const onSubmit = () => {
     setIsConfirmAddingOpen(true);
   };
 
+  // Called when user confirms the update in modal
   const handleConfirm = () => {
     setIsConfirmAddingOpen(false);
     setIsLoading(true);
@@ -82,16 +82,14 @@ export default function EditUser({ user, teacher, account }) {
       user_key: values.matricule,
       password: values.password,
       phone_number: values.phone,
-      role: values.role,
-      type: values.type || '',
     };
-    console.log(payload);
 
-    router.put(`/humanResources/${user.user_key}`, payload, {
+    router.put(`/students/${user.user_key}`, payload, {
       onSuccess: () => {
         setIsLoading(false);
         console.log('User updated successfully!');
-        resetForm();
+        // Optionally reset or keep form data
+        // resetForm();
       },
       onError: (errors) => {
         setIsLoading(false);
@@ -122,10 +120,9 @@ export default function EditUser({ user, teacher, account }) {
         submitBtnTitle={isLoading ? 'Updating...' : 'Update User'}
         submitFunction={handleSubmit(onSubmit)}
         maxWidth="md:max-w-3xl pb-4 mt-5"
-        disabled={isLoading}
+        disabled={isLoading || isSubmitDisabled}
       >
         <div className="w-full space-y-4">
-
           {/* Personal Information */}
           <FormContainer title="Personal Information" icon={User}>
             <TextField
@@ -193,30 +190,6 @@ export default function EditUser({ user, teacher, account }) {
               />
             </div>
 
-            <CustomSelect
-              name="role"
-              label="Role"
-              value={values.role}
-              handleChange={handleChange}
-              options={[
-                { value: '3', label: 'Teacher' },
-                { value: '2', label: 'Absence Manager' },
-              ]}
-            />
-
-            {values.role === '3' && (
-              <CustomSelect
-                name="type"
-                label="Type of Teacher"
-                value={values.type}
-                handleChange={handleChange}
-                options={teacher.map((t) => ({
-                  value: t.id,
-                  label: t.teacher_type,
-                }))}
-              />
-            )}
-
             <div className="flex gap-2 w-full items-center">
               <PasswordField
                 error={errors.password}
@@ -230,7 +203,10 @@ export default function EditUser({ user, teacher, account }) {
               <button
                 type="button"
                 className="px-4 py-2.5 rounded-md flex items-center flex-1 w-full min-w-56 h-10 gap-2 text-sm font-medium translate-y-5 dark:bg-purple-950/50 dark:hover:bg-purple-900 dark:text-gray-50 dark:border-purple-600 border"
-                onClick={() => handleChange('password', generateStrongPassword())}
+                onClick={() =>
+                  // Update password field properly, adjust if handleChange expects event
+                  handleChange('password', generateStrongPassword())
+                }
               >
                 <Wand size={18} className="dark:text-purple-500" />
                 Generate Password
@@ -244,8 +220,8 @@ export default function EditUser({ user, teacher, account }) {
         isOpen={isConfirmAddingOpen}
         onConfirm={handleConfirm}
         onClose={handleClose}
-        itemName={values.role || 'user'}
-        confirmText={`Confirm updating ${values.role || 'user'}`}
+        itemName={values.fullName || 'user'}
+        confirmText={`Confirm updating Student`}
         cancelText="Cancel update"
       />
     </Layout>

@@ -52,7 +52,7 @@ import SchoolResourcesLayout from '../../../../layouts/SchoolResourcesLayout';
      filterBy : ['niveau','numberGroup','totalAbsence'],
      path : '/schoolResources/filieres',
      links:{
-       edit:'edit',
+       edit:'schoolResources.fields.edit',
        profile:'profile'
      },
      modals : ['delete'],

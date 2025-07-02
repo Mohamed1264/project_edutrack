@@ -16,7 +16,7 @@ class PlatfromRoleSeeder extends Seeder
     {
         $roles = [
             'Admin',
-            'Absence Manger',
+            'Absence Manager',
             'Teacher',
             'Student',
         ];

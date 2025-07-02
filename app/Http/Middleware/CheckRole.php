@@ -22,6 +22,7 @@ class CheckRole
         }
 
         $user = Auth::user()?->user;
+
        
         if($user->hasRole($role)){
           

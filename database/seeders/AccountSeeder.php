@@ -19,14 +19,14 @@ class AccountSeeder extends Seeder
                 'school_key'=>'ISTA',
                 'user_key'=>'admin',
                 'password'=>Hash::make('password'),
-                'original_password'=>Hash::make('password'),
+                'original_password'=>'password',
                 'teacher_type_id'=>null
             ],
             [
                 'school_key'=>'ISTA',
                 'user_key'=>'am001',
                 'password'=>Hash::make('password'),
-                'original_password'=>Hash::make('password'),
+                'original_password'=>'password',
                 'teacher_type_id'=>null
             ],  
             [

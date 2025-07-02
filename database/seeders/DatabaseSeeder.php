@@ -26,6 +26,14 @@ use Database\Seeders\TermTypeSeeder;
 use Database\Seeders\TermSeeder;
 use Database\Seeders\SchoolWorkingDaySeeder;
 
+use Database\Seeders\GroupSeeder;
+use Database\Seeders\JustificationReasonSeeder;
+use Database\Seeders\SchoolJustificationReasonSeeder;
+use Database\Seeders\ScheduleSeeder;
+use Database\Seeders\ClassSessionSeeder;
+use Database\Seeders\AbsenceSeeder;
+use Database\Seeders\AbsenceJustificationSeeder;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -56,6 +64,14 @@ class DatabaseSeeder extends Seeder
             TermTypeSeeder::class,
             TermSeeder::class,
             SchoolWorkingDaySeeder::class,
+            GroupSeeder::class,
+            JustificationReasonSeeder::class,
+            SchoolJustificationReasonSeeder::class,
+            ScheduleSeeder::class,
+            ClassSessionSeeder::class,
+            AbsenceSeeder::class,
+            AbsenceJustificationSeeder::class,
+            PathStatusTypeSeeder::class
         ]);
     }
 }

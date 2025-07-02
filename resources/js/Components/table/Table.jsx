@@ -17,7 +17,7 @@ export default function Table ({tableConfig,data,filteredData}){
     
     return (
        
-        <div className='p-2'>
+        <div className=''>
             <TableHeader 
                 gridTemplateColumns={gridTemplateColumns}
                 tableConfig={tableConfig}
