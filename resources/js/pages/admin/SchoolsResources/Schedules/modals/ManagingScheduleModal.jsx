@@ -238,15 +238,14 @@ export default function ManagingScheduleModal({
                                         entity !== 'groups' && (
                                             available.groups.length ? 
                                             <CustomSelect
-                                                items={available.groups}
-                                                label="Available Groups"
-                                                name="name"
-                                                value={sessionState?.display.group}
-                                                nameKey={'group'}
-                                                placeholder="Select group"
-                                                handleChange={handleEntityChange}
-                                                icon={<Presentation className="w-4 h-4 text-gray-400" />}
-                                            />
+                                            name="group"
+                                            label="Select Group"
+                                            options={available.groups}
+                                            value={sessionState?.display.group}
+                                            handleChange={(name, value) => setSelectedGroupId(value)}
+                                            placeholder="Select a group"
+                                            icon={<Presentation className="w-4 h-4 text-gray-400" />}
+                                          />
                                             :
                                             <span>No groups Available</span>
                                         )
@@ -255,14 +254,12 @@ export default function ManagingScheduleModal({
                                         entity !== 'teachers' && (
                                             available.teachers.length ? 
                                             <CustomSelect
-                                                items={available.teachers}
+                                                name="teacher"
                                                 label="Available Teachers"
-                                                name="name"
-                                                nameKey={'teacher'}
+                                                options={ available.teachers}
                                                 value={sessionState?.display.teacher}
+                                                handleChange={(name, value) => setSelectedTeacherId(value)}
                                                 placeholder="Select Teacher"
-                                                position="top"
-                                                handleChange={handleEntityChange}
                                                 icon={<UserPen className="w-4 h-4 text-gray-400" />}
                                             />
                                             : 
@@ -273,16 +270,13 @@ export default function ManagingScheduleModal({
                                         sessionState?.raw.type === 'Presential' && entity !== 'rooms' && (
                                             available?.rooms.length ? 
                                             <CustomSelect
-                                                items={available.rooms}
-                                                label="Available Rooms"
-                                                name="room_name"
-                                                nameKey={'room'}
-                                                value={sessionState?.display.room}
-                                                placeholder="Select room"
-                                                handleChange={handleEntityChange}
-                                                position="top"
-                                                icon={<Building2 className="w-4 h-4 text-gray-400" />}
-                                            />
+                                            name="room"
+                                            label="Room"
+                                            options={available.rooms}
+                                            value={sessionState.display.room ? { id: sessionState.raw.room_id, room_name: sessionState.display.room } : null}
+                                            handleChange={handleChange}
+                                            placeholder="Select a room"
+                                          />
                                             :
                                             <span>No rooms available</span>
                                         )

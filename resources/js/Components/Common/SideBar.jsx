@@ -1,14 +1,14 @@
 import {  
   School, LayoutGrid, ClipboardList, User,
   CalendarFold, Sun, Moon, LogOut,
-  TrafficCone, History, Users, Bolt, GraduationCap,CheckCircle,
+  TrafficCone, History, Users, Bolt, GraduationCap, CheckCircle,
   ChevronRight,
   ChevronLeft
 } from 'lucide-react';
 
 import { useState, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { Link } from '@inertiajs/react'
+import { Link } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import useClickOutSide from '../../utils/Hooks/useClickOutSide';
 
@@ -16,8 +16,8 @@ const homePage = {
   'Admin' : 'admin.dashboad',
   'Absence Manager' : 'absenceManager.dashboad',
   'Teacher' : 'teacher.dashboad',
-  'Student' : 'student.dashboad',
-}
+};
+
 const links = {
   'Admin': [
     { 
@@ -52,8 +52,6 @@ const links = {
       routeName: 'absenceManager.dashboard',
       description: 'Overview and analytics'
     },
-
-
     {
       pageName: 'Justification',
       routeName: 'justification',
@@ -61,7 +59,7 @@ const links = {
     },
     {
       pageName: 'Absence List',
-      routeName: 'absence.lists',
+      routeName: 'absence',
       description: 'View and manage absence list'
     },
     {
@@ -74,27 +72,22 @@ const links = {
       routeName: 'students',
       description: 'View students list'
     }
-
-    
   ],
   'Teacher': [
     { 
       pageName: 'Schedule',
       routeName: 'teacher.dashboard',
       description: 'View and manage schedule',
-     
     },
     {
       pageName: 'Track Progress',
       routeName: 'teacher.progress',
       description: 'Monitor student progress',
-   
     },
     {
       pageName: 'Schedules Archive',
       routeName: 'teacher.archive',
       description: 'View schedule archive',
-    
     }
   ]
 };
@@ -122,11 +115,11 @@ const icons = {
 };
 
 export default function SideBar() {
-
   const user = usePage().props.auth.user;
   const role = usePage().props.auth.role.role_name;
   const theme = usePage().props.theme;
-  const routeName = usePage().props.routeName;
+  // Default routeName to empty string to avoid null errors
+  const routeName = usePage().props.routeName || '';
  
   const [isExpanded, setIsExpanded] = useState(false);
   const [hoverTimeout, setHoverTimeout] = useState(null);
@@ -134,28 +127,22 @@ export default function SideBar() {
 
   const closeSideBar = () =>{
     setIsExpanded(false);
-    setHoverTimeout(null)
-  }
-  useClickOutSide(closeSideBar,sideBarRef);
-
+    setHoverTimeout(null);
+  };
+  useClickOutSide(closeSideBar, sideBarRef);
 
   const toggleIsExpanded = () => {
     if (hoverTimeout) clearTimeout(hoverTimeout);
     setHoverTimeout(setTimeout(() => setIsExpanded(!isExpanded), 100));
-  }
+  };
 
-
-
-
-  const toggleTheme = (newTheme)=>{
-    router.post('/changeTheme',{
-      'theme' : newTheme
-    },{
-        replace: true
-  
-    })
-  }
-
+  const toggleTheme = (newTheme) => {
+    router.post('/changeTheme', {
+      theme: newTheme
+    }, {
+      replace: true
+    });
+  };
 
   const activeLinks = links[role];
   const activeIcons = icons[role];
@@ -163,11 +150,11 @@ export default function SideBar() {
     'Admin': 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
     'Absence Manager':  'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300',
     'Teacher': 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
-  }
+  };
 
   return (
     <aside 
-    ref={sideBarRef}
+      ref={sideBarRef}
       className={`flex flex-col justify-between transition-all duration-300 ease-in-out
         fixed z-50 h-svh 
         bg-gray-50 dark:bg-gray-900
@@ -176,7 +163,6 @@ export default function SideBar() {
         shadow-lg
         ${isExpanded ? 'w-72 2xl:w-96' : 'w-20 2xl:w-32'}
       `}
-
     >
       {/* Main Content Section */}
       <div className="flex flex-col h-full">
@@ -195,8 +181,7 @@ export default function SideBar() {
           </h2>
           <button type='button' className=' absolute -right-3 top-1/2 -translate-y-1/2 ' onClick={toggleIsExpanded}>
             <span className=' px-1 py-0.5 rounded-full border border-blue-100 bg-blue-400 text-blue-950 flex items-center justify-center'>
-               { isExpanded ? <ChevronLeft size={18}/> :    <ChevronRight size={18}/>}
-           
+               { isExpanded ? <ChevronLeft size={18}/> : <ChevronRight size={18}/>}
             </span>
           </button>
         </div>
@@ -210,7 +195,7 @@ export default function SideBar() {
                 key={link.pageName}
                 className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm 2xl:text-xl
                   transition-all duration-200 group
-                  ${(link.routeName === routeName  || routeName.includes(link.routeName))
+                  {(link.routeName === routeName || routeName.includes(link.routeName))
                     ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-800/50 dark:text-indigo-300 shadow-sm' 
                     : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                   }
@@ -228,7 +213,6 @@ export default function SideBar() {
                   <span>{link.pageName}</span>
                   <span className="text-xs 2xl:text-base text-gray-500 dark:text-gray-400">{link.description}</span>
                 </div>
-                
               </Link>
             ))}
           </div>
@@ -260,10 +244,9 @@ export default function SideBar() {
 
           {/* Logout Button */}
           <Link
-          href="/logout" 
-          method="post" 
-          as="button"
-           
+            href="/logout" 
+            method="post" 
+            as="button"
             className={` flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm 2xl:text-xl font-medium
               text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20
               transition-all duration-200 ${isExpanded ? ' justify-start' : ' justify-center'}`}
@@ -278,7 +261,7 @@ export default function SideBar() {
 
           {/* User Profile */}
           <Link
-            to={`/profile/${role}`}
+            href={`/profile/${role}`}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg
               hover:bg-gray-50 dark:hover:bg-gray-800/50
               transition-all duration-200 ${isExpanded ? ' justify-start' : ' justify-center'}`}

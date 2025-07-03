@@ -22,55 +22,55 @@ use Illuminate\Validation\Rule;
 
 class JustificationAbsenceController extends Controller
 {
-    public function index()
-{
+        public function index()
+    {
 
-    // Get all unjustified absences for the school
-    $justifications = Absence::where('is_justified', 0)
-        ->where('school_id', Auth::user()->school->id)
+        // Get all unjustified absences for the school
+        $justifications = Absence::where('is_justified', 0)
+            ->where('school_id', Auth::user()->school->id)
+            ->get();
+
+        // Get student IDs with unjustified absences
+        $justifiedStudentIds = $justifications->pluck('student_id')->unique();
+
+        // Get students without unjustified absences, with their group and absences
+        $studentsWithoutJustification = StudentPath::whereIn('student_account_id', $justifiedStudentIds)
         ->get();
 
-    // Get student IDs with unjustified absences
-    $justifiedStudentIds = $justifications->pluck('student_id')->unique();
+        $reasons=JustificationReason::get();
 
-    // Get students without unjustified absences, with their group and absences
-    $studentsWithoutJustification = StudentPath::whereIn('student_account_id', $justifiedStudentIds)
-    ->get();
+        // Build array of absence data
+        $absenceData = $studentsWithoutJustification->map(function ($student,$cptA=0,$cptL=0) {
+            $cptA=Absence::where('is_justified', 0)->where('school_id',Auth::user()->school->id)->where('type', 'Absent')->count();
+            $cptL=Absence::where('is_justified', 0)->where('school_id',Auth::user()->school->id)->where('type', 'Late')->count();
+            $name = User::where('id', $student->student_account_id)->value('full_name');
+            
+            $group = SchoolStructureInstance::where('id', $student->group_id)->value('name');
+            $absence = Absence::where('is_justified', 0)
+            ->where('student_id', $student->student_account_id)
+            ->where('type', 'Absent')
+            ->latest()
+            ->first();        
+            return [
+                "idAbsence"       => $absence->id, // use null-safe operator in case no absence exists
+                'fullName'        => $name,
+                'group'           => $group,
+                'typeAbsence'     => 'Absent',
+                'totalAbsence'    => $cptA,
+                'totalLate'       => $cptL,
+                'successiveDates' => Absence::where('type', 'Absent')
+                    ->take(3)
+                    ->pluck('created_at')
+                    ->map(fn ($date) => $date->format('Y-m-d'))
+                    ->implode(', '),
+            ];
+        });
 
-    $reasons=JustificationReason::get();
-
-    // Build array of absence data
-    $absenceData = $studentsWithoutJustification->map(function ($student,$cptA=0,$cptL=0) {
-        $cptA=Absence::where('is_justified', 0)->where('school_id',Auth::user()->school->id)->where('type', 'Absent')->count();
-        $cptL=Absence::where('is_justified', 0)->where('school_id',Auth::user()->school->id)->where('type', 'Late')->count();
-        $name = User::where('id', $student->student_account_id)->value('full_name');
-        
-        $group = SchoolStructureInstance::where('id', $student->group_id)->value('name');
-        $absence = Absence::where('is_justified', 0)
-        ->where('student_id', $student->student_account_id)
-        ->where('type', 'Absent')
-        ->latest()
-        ->first();        
-        return [
-            "idAbsence"       => $absence->id, // use null-safe operator in case no absence exists
-            'fullName'        => $name,
-            'group'           => $group,
-            'typeAbsence'     => 'Absent',
-            'totalAbsence'    => $cptA,
-            'totalLate'       => $cptL,
-            'successiveDates' => Absence::where('type', 'Absent')
-                ->take(3)
-                ->pluck('created_at')
-                ->map(fn ($date) => $date->format('Y-m-d'))
-                ->implode(', '),
-        ];
-    });
-
-    return Inertia::render('AbsenceManager/Justification', [
-        'justif' => $absenceData,
-        'reasons'=>$reasons
-    ]);
-}
+        return Inertia::render('AbsenceManager/Justification', [
+            'justif' => $absenceData,
+            'reasons'=>$reasons
+        ]);
+    }
 
 public function confirm($ids, $justif)
 {

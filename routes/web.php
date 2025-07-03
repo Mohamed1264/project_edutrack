@@ -104,9 +104,11 @@ Route::middleware([Authenticate::class, CheckRole::class . ':Absence Manager'])-
     Route::get('/justify/{ids}/{justif}', [JustificationAbsenceController::class, 'confirm'])->name('ConfirmJustification');
 
 
+    Route::get('/absence/lists', [AbsenceListController::class, 'index'])->name('absence');
+    Route::get('/absenceListes/{id}', [AbsenceListController::class, 'group'])->name('absence.group');
+    Route::get('/absenceListe/{id_group}', [AbsenceListController::class, 'list']);
 
 
-    Route::get('/absence/lists', [AbsenceListController::class, 'index'])->name('absence.lists');
     Route::get('/schedules/lists', [DashboardController::class, 'absenceManagerDashBoard'])->name('schedules.lists');
 });
 

@@ -1,16 +1,27 @@
 import { useState } from "react";
 import { list } from "../../Data/Lists";
 import { listeAbsenceData } from "../../Data/ListeAbsenceData";
-import { groups } from "../../Data/Users";
 import { ListHeader } from "../../Components/Teacher/ListComponents";
 import { sessions, days } from "../../Data/ScheduleData";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Layout from "../../layouts/Layout";
 
-export default function List({ idGroup, weekId }) {
-  const [selectedDay, setSelectedDay] = useState("Monday");
-  const newSessions = sessions.filter((session) => session.start !== "19:30");
-  const stagiairesList = ["Ayoub Fikry", "Jawad Fikry", "Khadija Fikry"];
-
+export default function List({ idGroup,absence, weekId,group,ids,sessions, from,  studentIDS, student, days, to}) {
+   const day=days.map(d=>d.day_name)
+   
+  const [selectedDay, setSelectedDay] = useState(day[0]);
+  const newSessions = sessions
+  .filter(session => session.start_time !== "19:00:00")
+  .map(s => ({id:s.id, start: s.start_time, end: s.end_time }));
+  const baseDate = new Date(from);
+  const offset = day.indexOf(selectedDay); // e.g. Monday = 0
+  baseDate.setDate(baseDate.getDate() + offset);
+  
+  const targetDate = baseDate.toISOString().slice(0, 10);
+console.log(targetDate);
+  
+  const stagiairesList=student.map(s=>s.full_name)
+  
   const data = [
     {
       idSession: 1,
@@ -59,7 +70,7 @@ export default function List({ idGroup, weekId }) {
     },
   ];
 
-  const group = groups.find((group) => group.idGroup === Number(idGroup));
+
   const weekData = listeAbsenceData.find((w) => w.id === Number(weekId));
 
   const fromDate = new Date(weekData?.from);
@@ -82,20 +93,22 @@ export default function List({ idGroup, weekId }) {
   const filtredDataBySelectedDay = data.filter((d) => d.day_of_week === selectedDay);
 
   const handleNextDay = () => {
-    const dayIndex = days.indexOf(selectedDay);
-    const newDay = dayIndex === days.length - 1 ? days[0] : days[dayIndex + 1];
+    const dayIndex = day.indexOf(selectedDay);
+    const newDay = dayIndex === day.length - 1 ? day[0] : day[dayIndex + 1];
     setSelectedDay(newDay);
   };
 
   const handlePreviousDay = () => {
-    const dayIndex = days.indexOf(selectedDay);
-    const newDay = dayIndex === 0 ? days[days.length - 1] : days[dayIndex - 1];
+    const dayIndex = day.indexOf(selectedDay);
+    const newDay = dayIndex === 0 ? day[days.length - 1] : day[dayIndex - 1];
     setSelectedDay(newDay);
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-2 py-6">
-      <ListHeader groupLibel={group?.libel} studentsCount={list.length} date={`${fromFormattedDate} - ${toFormattedDate}`} />
+    <Layout>
+
+    <div className="max-w-6xl mx-auto px-8 py-6 space-y-4">
+      <ListHeader groupLibel={group?.name} studentsCount={list.length} date={`${from} - ${to}`} />
 
       <div>
         <div className="grid grid-cols-[100px_repeat(1fr)] grid-rows-5 gap-2 ">
@@ -151,7 +164,8 @@ export default function List({ idGroup, weekId }) {
                   <RenderAbsence
                     key={`${stgr}-${session.start}`}
                     session={session}
-                    data={filtredDataBySelectedDay.filter((d) => d.student === stgr)}
+                    data={absence}
+                    from={targetDate}
                   />
                 ))}
               </div>
@@ -160,19 +174,26 @@ export default function List({ idGroup, weekId }) {
         </div>
       </div>
     </div>
+    </Layout>
+
   );
 }
 
-const RenderAbsence = ({ session, data }) => {
+const RenderAbsence = ({ session, data , from}) => {
   const style = {
     Present: "bg-green-100 border-green-700 text-green-700 dark:bg-emerald-400 dark:text-emerald-50 dark:border-emerald-700",
     Absent: "bg-red-100 border-red-700 text-red-700 dark:bg-red-500 dark:text-red-50 dark:border-red-700",
     Late: "bg-orange-100 border-orange-700 text-orange-700 dark:bg-orange-400 dark:text-orange-50 dark:border-orange-700",
   };
-
-  const matchedRecord = data.find((d) => d.start_time === session.start);
-
-  return matchedRecord?.idSession ? (
+  
+  const matchedRecord = data.find(
+    (d) =>
+      d.session_id === session.id &&
+      new Date(d.created_at).toISOString().slice(0, 10) == from
+  );
+    console.log(matchedRecord);
+  
+  return matchedRecord?.session_id ? (
     <div
       className={`flex items-center justify-center gap-4 px-2 py-1 rounded-md flex-1 font-semibold ${style[matchedRecord.type]}`}
     >
