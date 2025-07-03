@@ -97,20 +97,17 @@ const icons = {
     Dashboard: <LayoutGrid className="size-5 2xl:size-9" />,
     'Human Resources': <Users className="size-5 2xl:size-9" />,
     'School Resources': <School className="size-5 2xl:size-9" />,
-    'Historiques': <History className="size-5 2xl:size-9" />,
     'Configuration': <Bolt className="size-5 2xl:size-9" />
   },
   'Absence Manager': {
     'Dashboard': <LayoutGrid className="size-5 2xl:size-9" />,
     'Justification': <CheckCircle className="size-5 2xl:size-9" />,
     'Absence List': <ClipboardList className="size-5 2xl:size-9" />,
-    'Schedules': <CalendarFold className="size-5 2xl:size-9" />,
     'Students': <GraduationCap className="size-5 2xl:size-9" />
   },
   'Teacher': {
     'Track Progress': <TrafficCone className="size-5 2xl:size-9" />,
     'Schedule': <CalendarFold className="size-5 2xl:size-9" />,
-    'Schedules Archive': <History className="size-5 2xl:size-9" />
   }
 };
 
@@ -261,7 +258,7 @@ export default function SideBar() {
 
           {/* User Profile */}
           <Link
-            href={`/profile/${role}`}
+            href={`/profile/${user.id}`}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg
               hover:bg-gray-50 dark:hover:bg-gray-800/50
               transition-all duration-200 ${isExpanded ? ' justify-start' : ' justify-center'}`}

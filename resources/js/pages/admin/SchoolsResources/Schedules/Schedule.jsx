@@ -20,7 +20,7 @@ import { router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 
 export default function Schedule({type,name,sessions,timeSlots,workingDays, owner}) {
-     
+     console.log(owner)
     const scheduleSessions = timeSlots
     
     

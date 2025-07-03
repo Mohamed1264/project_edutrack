@@ -19,6 +19,7 @@ export default function ManagingScheduleModal({
     entity,
     available
 }) {
+    console.log(available)
     const popoverRef = useRef(null);
     useClickOutSide(onCancel, popoverRef)
     const [isZoomed, setIsZoomed] = useState(false)
@@ -54,7 +55,7 @@ export default function ManagingScheduleModal({
     
     const handleChange = (name, value) => {
         
-        if (name === 'is_temporary') {
+        if (name == 'is_temporary') {
             
              // Start date: today
              const startDate = now.toISOString().split('T')[0]; // "YYYY-MM-DD"
@@ -116,21 +117,36 @@ export default function ManagingScheduleModal({
           }
         };
       }
-    const handleEntityChange = (entityType, selectedItem) => {
-        if (!selectedItem) return;
+      const handleEntityChange = (entityType, selectedItem) => {
+        if (!selectedItem) {
+          // Clear selection if null
+          const displayKey = entityType;
+          const rawKey = `${entityType}_id`;
       
-        const displayKey = entityType;          // e.g. "group", "teacher", "room"
-        const rawKey = `${entityType}_id`;      // e.g. "group_id", "teacher_id", "room_id"
-
-        const updatedSession = updateSession(sessionState , {
-            'display' : {[displayKey] : selectedItem?.name || selectedItem?.room_name },
-            'raw' : {[rawKey] : selectedItem.id },
-        })
+          const updatedSession = updateSession(sessionState, {
+            display: { [displayKey]: null },
+            raw: { [rawKey]: null }
+          });
       
-        
+          setSessionState(updatedSession);
+          return;
+        }
+      
+        const displayKey = entityType;              // "group", "teacher", "room"
+        const rawKey = `${entityType}_id`;          // "group_id", "teacher_id", etc.
+        const displayValue = selectedItem.name || selectedItem.room_name || selectedItem.group_name || "";
+      
+        const updatedSession = updateSession(sessionState, {
+          display: { [displayKey]: displayValue },
+          raw: { [rawKey]: selectedItem.id }
+        });
       
         setSessionState(updatedSession);
-      };
+      
+        // ✅ Correct place to log updated value (use callback or log after state effect if needed)
+        console.log("Updated session:", updatedSession);
+      }; 
+      
       
 
 
@@ -238,14 +254,15 @@ export default function ManagingScheduleModal({
                                         entity !== 'groups' && (
                                             available.groups.length ? 
                                             <CustomSelect
-                                            name="group"
-                                            label="Select Group"
-                                            options={available.groups}
-                                            value={sessionState?.display.group}
-                                            handleChange={(name, value) => setSelectedGroupId(value)}
-                                            placeholder="Select a group"
-                                            icon={<Presentation className="w-4 h-4 text-gray-400" />}
-                                          />
+                                                items={available.groups}
+                                                label="Available Groups"
+                                                name="name"
+                                                value={sessionState?.display.group}
+                                                nameKey={'group'}
+                                                placeholder="Select group"
+                                                handleChange={handleEntityChange}
+                                                icon={<Presentation className="w-4 h-4 text-gray-400" />}
+                                            />
                                             :
                                             <span>No groups Available</span>
                                         )
@@ -254,12 +271,14 @@ export default function ManagingScheduleModal({
                                         entity !== 'teachers' && (
                                             available.teachers.length ? 
                                             <CustomSelect
-                                                name="teacher"
+                                                items={available.teachers}
                                                 label="Available Teachers"
-                                                options={ available.teachers}
+                                                name="name"
+                                                nameKey={'teacher'}
                                                 value={sessionState?.display.teacher}
-                                                handleChange={(name, value) => setSelectedTeacherId(value)}
                                                 placeholder="Select Teacher"
+                                                position="top"
+                                                handleChange={handleEntityChange}
                                                 icon={<UserPen className="w-4 h-4 text-gray-400" />}
                                             />
                                             : 
@@ -270,13 +289,16 @@ export default function ManagingScheduleModal({
                                         sessionState?.raw.type === 'Presential' && entity !== 'rooms' && (
                                             available?.rooms.length ? 
                                             <CustomSelect
-                                            name="room"
-                                            label="Room"
-                                            options={available.rooms}
-                                            value={sessionState.display.room ? { id: sessionState.raw.room_id, room_name: sessionState.display.room } : null}
-                                            handleChange={handleChange}
-                                            placeholder="Select a room"
-                                          />
+                                                items={available.rooms}
+                                                label="Available Rooms"
+                                                name="room_name"
+                                                nameKey={'room'}
+                                                value={sessionState?.display.room}
+                                                placeholder="Select room"
+                                                handleChange={handleEntityChange}
+                                                position="top"
+                                                icon={<Building2 className="w-4 h-4 text-gray-400" />}
+                                            />
                                             :
                                             <span>No rooms available</span>
                                         )

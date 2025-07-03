@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HumanResources\HumanResourcesController;
 use App\Http\Controllers\JustificationAbsenceController;
 use App\Http\Controllers\AbsenceListController;
-
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\AbsenceController;
 
 // Public routes - no middleware
 Route::middleware([RedirectTo::class])->group(function (){
@@ -31,6 +33,7 @@ Route::get('/', function(){
 
 // Protected routes by role
 Route::middleware([Authenticate::class, CheckRole::class.':Admin'])->group(function() {
+   
     Route::get('/admin', [DashboardController::class , 'adminDashboard'])->name('admin.dashboard');
     Route::inertia('/profile', 'admin/Profile')->name('admin.profile');
     Route::inertia('/humanResources', 'admin/Indexes/HumanRessources')->name('humanResources');
@@ -116,13 +119,15 @@ Route::middleware([Authenticate::class, CheckRole::class . ':Absence Manager'])-
 
 Route::middleware([Authenticate::class, CheckRole::class.':Teacher'])->group(function() {
     Route::get('/teacher',[DashboardController::class,'teacherDashboard'])->name('teacher.dashboard');
-    Route::inertia('/takeAbsence/{id}', 'Teacher/TakeAbsence')->name('teacher.takeAbsence');
+    Route::get('/takeAbsence/{id}',[AbsenceController::class,'index'])->name('teacher.takeAbsence');
     Route::inertia('/updateAbsence/{id}', 'Teacher/ListAbsence2')->name('teacher.updateAbsence');
     Route::inertia('/schedule/archive/teachers/{id?}', 'Teacher/Dashboard')->name('teacher.archive');
     Route::inertia('/progress/teachers/{id?}', 'Teacher/Dashboard')->name('teacher.progress');
 
-});
+});    
 
+
+    Route::get('/profile/{id}', [UserController::class, 'profile'])->name('profile');
 Route::middleware([Authenticate::class, CheckRole::class.':Student'])->group(function() {
     Route::inertia('/student', 'Student/Dashboard')->name('student.dashboard');
     Route::inertia('/student/profile', 'Student/Dashboard')->name('student.profile');

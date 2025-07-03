@@ -61,8 +61,8 @@ export const TableListBody = ({filteredStagiaires,absenceData,handleRadioChange,
               className="grid px-4 py-2 gap-4 items-center hover:bg-gray-100 dark:hover:bg-gray-700"
               style={{ gridTemplateColumns }}
             >
-              <div className="text-sm text-center">{index + 1}</div>
-              <div className="text-sm text-center">{s.fullName}</div>
+              <div className="text-sm text-center">{s.id}</div>
+              <div className="text-sm text-center">{s.name}</div>
               <div className="text-sm text-center">
                 <AbsenceState
                   cef={s.Cef}

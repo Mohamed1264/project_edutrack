@@ -11,6 +11,7 @@ use App\Models\Account;
 use App\Models\Schedule;
 use App\Models\Room;
 use App\Models\Group;
+use App\Models\User;
 use LDAP\Result;
 
 use function Symfony\Component\Clock\now;
@@ -18,31 +19,34 @@ use function Symfony\Component\Clock\now;
 class ScheduleController extends Controller
 {
    
-    public function showSchedulesList($type){
-        $school = Auth::user()->school;  
-        if (!$school) {
-            abort(403, 'Unauthorized action - No school associated with user.');
-        }
+    public function showSchedulesList($type)
+{
+    $school = Auth::user()->school;
 
-        switch($type) {
-            case 'teachers':
-                $teachers = $school->getUsersByRole(3)->all();
-                return $this->renderScheduleList($teachers, $type, 'full_name');
-            
-            case 'groups':
-                $groups = $school->getGroups();
-                return $this->renderScheduleList($groups, $type, 'name');
-                    
-            case 'rooms':
-                $rooms = $school->rooms;
-                return $this->renderScheduleList($rooms, $type, 'room_name');
-            
-            default: 
-                abort(404, 'Invalid schedule type requested.');
-        }
-    
-
+    if (!$school) {
+        abort(403, 'Unauthorized action - No school associated with user.');
     }
+
+    switch ($type) {
+        case 'teachers':
+            $teachers = $school->getUsersByRole(3)->get();
+             // Assuming 3 is the teacher role
+             
+            return $this->renderScheduleList($teachers, $type, 'full_name', 'user_key');
+
+        case 'groups':
+            $groups = $school->getGroups(); // Assuming this returns a collection
+            return $this->renderScheduleList($groups, $type, 'name', 'id');
+
+        case 'rooms':
+            $rooms = $school->rooms; // Assuming this is a relationship
+            return $this->renderScheduleList($rooms, $type, 'room_name', 'id');
+
+        default:
+            abort(404, 'Invalid schedule type requested.');
+    }
+}
+
 
     public function show(string $type, int $id)
     {
@@ -198,10 +202,11 @@ class ScheduleController extends Controller
             ];
         });
 
-
+    $teacherIDS=User::where('role_id',3)->pluck('user_key')->toArray();
 
     $availableTeachers = Account::with('user:user_key,full_name')
         ->where('school_key', $schoolKey)
+        ->whereIn('user_key',$teacherIDS)
         ->whereNotIn('id',$busyTeachersIds)
         ->get(['id','user_key'])
         ->map(function($account){ 

@@ -1,77 +1,153 @@
-import React from 'react';
-import { Listbox } from '@headlessui/react';
-import { Check, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from "react"
+import { ChevronDown } from "lucide-react"
+import SearchBar from "../Common/SearchBar"
+import { FieldContainer } from "./GlobalComponents"
+export default function Select({ config }) {
+    const { name, onChange, defaultValue, placeholder,nameKey, items, position = 'bottom' } = config
+    const [isSelectItem, setIsSelectItem] = useState(false)
+    const [currentValue, setCurrentValue] = useState(defaultValue)
+    const [search, setSearch] = useState('')
+    
+    const [dropdownPosition, setDropdownPosition] = useState(position)
+    const selectRef = useRef(null)
 
-export function CustomSelect({
-  name,
-  label,
-  value = null,           // now expects an object or null
-  handleChange,
-  options = [],          // array of objects, each with at least { value, label }
-  placeholder = 'Select an option',
-  icon = null,
-}) {
-  console.log(options[0].label);
-  
+    // Handle click outside to close dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (selectRef.current && !selectRef.current.contains(event.target)) {
+                setIsSelectItem(false)
+            }
+        }
 
-  return (
-    <div className="w-full space-y-2">
-      {label && (
-        <label htmlFor={name} className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {label}
-        </label>
-      )}
-      <Listbox value={value} onChange={(selected) => handleChange(name, selected)}>
-        <div className="relative">
-          <Listbox.Button
-            className="relative w-full cursor-pointer rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm 
-            focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 flex items-center justify-between"
-          >
-            <span className="flex items-center space-x-2">
-              {icon && <span className="text-gray-400">{icon}</span>}
-              <span className="block truncate">
-                {value ? value.label : placeholder}
-              </span>
-            </span>
-            <ChevronDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
-          </Listbox.Button>
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
 
-          <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg 
-            ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm dark:bg-gray-800">
-            {options.length === 0 && (
-              <div className="relative cursor-default select-none py-2 px-4 text-gray-700 dark:text-gray-300">
-                No options available
-              </div>
-            )}
-            {options.map((option) => (
-              <Listbox.Option
-                key={option.label}
-                value={option}
-                className={({ active }) =>
-                  `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
-                    active
-                      ? 'bg-purple-100 text-purple-900 dark:bg-purple-600 dark:text-white'
-                      : 'text-gray-900 dark:text-gray-100'
-                  }`
-                }
-              >
-                {({ selected }) => (
-                  <>
-                    <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                      {option.name}
+    // Check available space and adjust position
+    useEffect(() => {
+        if (isSelectItem && selectRef.current) {
+            const rect = selectRef.current.getBoundingClientRect()
+            const spaceBelow = window.innerHeight - rect.bottom
+            const spaceAbove = rect.top
+            const dropdownHeight = 230 // Approximate height of dropdown
+
+            if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+                setDropdownPosition('top')
+            } else {
+                setDropdownPosition('bottom')
+            }
+        }
+    }, [isSelectItem])
+
+    const handleChange = (value) => setSearch(value.toLowerCase())
+    
+    const select = (obj) => {
+        onChange(nameKey, obj)
+        setCurrentValue(obj[name])
+        setIsSelectItem(false)
+        setSearch('')
+    }
+
+    const data = items.filter(item => 
+        String(item[name]).toLowerCase().startsWith(search)
+    )
+
+    return (
+        <div className="relative flex-1" ref={selectRef}>
+            <div 
+                className={`
+                    flex items-center justify-between 
+                    bg-gray-50 dark:bg-gray-800
+                    text-gray-700 dark:text-gray-50
+                    border rounded-lg
+                    w-full py-2.5 px-4
+                    transition-all duration-200
+                    ${isSelectItem 
+                        ? 'border-purple-500 dark:border-purple-500 shadow-sm' 
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    }
+                `} 
+                onClick={() => setIsSelectItem(!isSelectItem)}
+            >
+                {currentValue ? (
+                    <span className="font-medium">{currentValue}</span>
+                ) : (
+                    <span className="text-gray-400 dark:text-gray-500 text-sm font-medium">
+                        {placeholder}
                     </span>
-                    {selected && (
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-purple-600 dark:text-purple-300">
-                        <Check className="h-5 w-5" aria-hidden="true" />
-                      </span>
-                    )}
-                  </>
                 )}
-              </Listbox.Option>
-            ))}
-          </Listbox.Options>
+                <ChevronDown 
+                    size={20} 
+                    className={`
+                        transition-transform duration-300
+                        ${isSelectItem ? 'rotate-180 text-purple-500' : 'text-gray-400'}
+                    `}
+                />
+            </div>
+
+            {isSelectItem && (
+                <div 
+                    className={`
+                        absolute left-0 right-0
+                        p-2 border border-gray-200 dark:border-gray-700
+                        rounded-lg bg-white dark:bg-gray-800
+                        shadow-lg
+                        ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}
+                        w-full
+                        max-w-72
+                        z-50
+                    `}
+                >
+                    <SearchBar  
+                        searchTerm={search} 
+                        handleSearch={handleChange} 
+                    />
+                    <div className="max-h-40 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] space-y-1 mt-2">
+                        {data.length > 0 ? (
+                            data.map((item) => (
+                                <span
+                                    key={item[name]}
+                                    className={`
+                                        block p-2 rounded-md text-sm cursor-pointer
+                                        transition-colors duration-200
+                                        ${currentValue == (item[name])
+                                            ? 'bg-purple-50 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700'
+                                            : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+                                        }
+                                        border
+                                    `}
+                                    onClick={() => select(item)}
+                                >
+                                    {item[name]}
+                                </span>
+                            ))
+                        ) : (
+                            <div className="text-center py-2 text-gray-500 dark:text-gray-400 text-sm">
+                                No results found
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
-      </Listbox>
-    </div>
-  );
+    )
+} 
+
+export const CustomSelect = ({items,label,nameKey , name , handleChange , value , placeholder,position = 'bottom'})=>{
+    const config = {
+       name : name, 
+       items : items,
+       onChange : handleChange,
+       placeholder : placeholder,
+       defaultValue : value ,
+       position : position  ,
+       nameKey   :nameKey
+    }
+   return (
+       <FieldContainer label={label}>
+           <Select config={config}/>
+
+       </FieldContainer>
+       
+   )
 }

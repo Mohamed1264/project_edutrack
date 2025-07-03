@@ -7,8 +7,8 @@ import { route } from 'ziggy-js';
 import { router } from "@inertiajs/react";
 import SchoolResourcesLayout from '../../../../../layouts/SchoolResourcesLayout';
 import ClearScheduleModal from '../modals/ClearScheduleModal';
-export default function SchedulesList ({data,type,name}) { 
-
+export default function SchedulesList ({data,type,name,key}) { 
+    console.log(data)
     const [search,setSearch] = useState('');
     const [selectedSchedule,setSelectedSchudele] = useState(null);
     const [displayedModal,setDisplayedModal] = useState(false)
@@ -21,7 +21,7 @@ export default function SchedulesList ({data,type,name}) {
    
     const schedules = data.filter(item => item[name].toLowerCase().startsWith(search.toLowerCase()))
     
-    
+    console.log(data)
     const handleSearch = (value) => setSearch(value)
     
     const handleSelect = (item) => {
@@ -140,7 +140,7 @@ export default function SchedulesList ({data,type,name}) {
                                             
                                             <div className=' flex items-center justify-end gap-2'>
                                             <Link
-                                                href={route('schoolResources.schedules.schedule',{'type':type,'id':schedule.id})}
+                                                href={route('schoolResources.schedules.schedule',{'type':type,'id':schedule.account_id?schedule.account_id:schedule.id})}
                                                 className="p-2 rounded-full bg-purple-500 dark:bg-purple-700 
                                                     text-white
                                                     hover:bg-purple-600 dark:hover:bg-purple-800"

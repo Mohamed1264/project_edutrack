@@ -3,9 +3,9 @@ import {route} from 'ziggy-js';
 import ScheduleContainer from "../../Components/Schedule/ScheduleContainer";
 import Layout from "../../layouts/Layout";
 
-export default function Dashboard({schedule,timeSlots,workingDays}) {
+export default function Dashboard({schedule,timeSlots,workingDays,test}) {
     const user = usePage().props.auth.user
-
+    console.log(test)
     const scheduleFunction =(day,dayIndex,session,sessionIndex)=>{
         const matchingSession = schedule.find(s => s.raw.day_id === day.id && session.id === s.raw.time_slot_id);
         const isDisabled = matchingSession?.status === 'disabled';

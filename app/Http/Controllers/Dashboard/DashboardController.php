@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ClassSession;
 use App\Models\School;
 use App\Models\User;
-
+use App\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -79,7 +79,7 @@ class DashboardController extends Controller
             ["label" => 'Schedules', "type"=> 'schedules', "total"=> 0 ],
             ["label" => 'Pending Requests', "type"=> 'pendingRequests', "total"=> 0],  
         ];
-        return Inertia::render('AbsenceManager/Dashboard',[
+        return Inertia::render('Components/Dashboard',[
             'cardsInfo' => $cardsInfo
         ]);
     }
@@ -87,14 +87,15 @@ class DashboardController extends Controller
 
     public function teacherDashboard () { 
         $teacher = Auth::user();
-        $school = $teacher->school;
+        $school = $teacher->school;  
 
         $timesSlots = $school->activeTimeSlots();
         $workingDays = $school->workingDays->map(function($workingDay) {
             return $workingDay->only(['id', 'day_name', 'day_id']);
         });
+        $teacherAccount=Account::where('user_key',$teacher->user_key)->first();
 
-        $schedule  = Schedule::where('teacher_id', $teacher->id)
+        $schedule  = Schedule::where('teacher_id', $teacherAccount->id)
           ->where('school_id', $school->id)
           ->where('version_end_date', null)
           ->get()->map(function ($session){
@@ -134,7 +135,8 @@ class DashboardController extends Controller
           return Inertia::render('Teacher/Dashboard', [
             'schedule' => $schedule,
             'timeSlots' => $timesSlots,
-            'workingDays' => $workingDays
+            'workingDays' => $workingDays,
+            'test' =>  $teacherAccount
         ]);
           
         
