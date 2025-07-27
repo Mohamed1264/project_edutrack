@@ -79,7 +79,7 @@ class DashboardController extends Controller
             ["label" => 'Schedules', "type"=> 'schedules', "total"=> 0 ],
             ["label" => 'Pending Requests', "type"=> 'pendingRequests', "total"=> 0],  
         ];
-        return Inertia::render('Components/Dashboard',[
+        return Inertia::render('AbsenceManager/Dashboard',[
             'cardsInfo' => $cardsInfo
         ]);
     }

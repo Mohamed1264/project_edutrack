@@ -44,7 +44,6 @@ export default function ManagingScheduleModal({
                 return ! ( (sessionState?.raw.type === 'Presential' ? sessionState?.display.room : true) && isTemporaryValid && sessionState?.display.teacher )
             case 'rooms':
                 return  !(sessionState?.display.teacher_name && sessionState?.display.group_name && isTemporaryValid)
-        
             default:
                 return true;
         }
@@ -118,34 +117,23 @@ export default function ManagingScheduleModal({
         };
       }
       const handleEntityChange = (entityType, selectedItem) => {
-        if (!selectedItem) {
-          // Clear selection if null
-          const displayKey = entityType;
-          const rawKey = `${entityType}_id`;
-      
-          const updatedSession = updateSession(sessionState, {
-            display: { [displayKey]: null },
-            raw: { [rawKey]: null }
-          });
-      
-          setSessionState(updatedSession);
-          return;
-        }
-      
-        const displayKey = entityType;              // "group", "teacher", "room"
-        const rawKey = `${entityType}_id`;          // "group_id", "teacher_id", etc.
-        const displayValue = selectedItem.name || selectedItem.room_name || selectedItem.group_name || "";
-      
+        const rawKey = `${entityType}_id`;         // e.g., "group_id"
+        const displayKey = entityType;             // e.g., "group"
+        console.log(displayKey);
+        
+        const displayValue = available[`${entityType}s`].find(a=>a.id==selectedItem)
+         console.log(displayValue);
+        const display=displayValue['name']||displayValue['room_name']
         const updatedSession = updateSession(sessionState, {
-          display: { [displayKey]: displayValue },
-          raw: { [rawKey]: selectedItem.id }
+          raw: { [rawKey]: selectedItem },
+          display: { [displayKey]: display },
         });
+
       
         setSessionState(updatedSession);
+      };
       
-        // ✅ Correct place to log updated value (use callback or log after state effect if needed)
-        console.log("Updated session:", updatedSession);
-      }; 
+      console.log(sessionState);
       
       
 
@@ -256,9 +244,10 @@ export default function ManagingScheduleModal({
                                             <CustomSelect
                                                 items={available.groups}
                                                 label="Available Groups"
-                                                name="name"
+                                                name="group"
+                                                id="id"
                                                 value={sessionState?.display.group}
-                                                nameKey={'group'}
+                                                nameKey={'name'}
                                                 placeholder="Select group"
                                                 handleChange={handleEntityChange}
                                                 icon={<Presentation className="w-4 h-4 text-gray-400" />}
@@ -273,8 +262,9 @@ export default function ManagingScheduleModal({
                                             <CustomSelect
                                                 items={available.teachers}
                                                 label="Available Teachers"
-                                                name="name"
-                                                nameKey={'teacher'}
+                                                name="teacher"
+                                                nameKey={'name'}
+                                                id={'id'}
                                                 value={sessionState?.display.teacher}
                                                 placeholder="Select Teacher"
                                                 position="top"
@@ -291,8 +281,9 @@ export default function ManagingScheduleModal({
                                             <CustomSelect
                                                 items={available.rooms}
                                                 label="Available Rooms"
-                                                name="room_name"
-                                                nameKey={'room'}
+                                                name="room"
+                                                nameKey={'room_name'}
+                                                id={'id'}
                                                 value={sessionState?.display.room}
                                                 placeholder="Select room"
                                                 handleChange={handleEntityChange}

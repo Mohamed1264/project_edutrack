@@ -13,8 +13,8 @@ class ClassSession extends Model
     /** @use HasFactory<\Database\Factories\ClassSessionFactory> */
     use HasFactory;
     protected $fillable =[
-        'school_id','session_instance_id','session_date'
-    ];
+        'school_id','schedule_id','session_date'
+    ]; 
     public function school(){
         return $this->belongsTo(School::class);
     }

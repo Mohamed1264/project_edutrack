@@ -5,7 +5,7 @@ namespace App\Http\Controllers\HumanResources;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Account;
-use App\Models\School;
+use App\Models\School;   
 use App\Models\TeacherType;
 use App\Models\PlatformRole;
 use Illuminate\Http\Request;

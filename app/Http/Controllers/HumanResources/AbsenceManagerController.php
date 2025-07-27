@@ -128,10 +128,18 @@ class AbsenceManagerController extends Controller
     {
         $user = User::with('role')->where('user_key', $user_key)->firstOrFail();
         $account = Account::where('user_key', $user_key)->firstOrFail();
+        $default= StudentPath::where('student_account_id',$user->id)->firstOrFail();;
+        $groups_list= Group::pluck('school_structure_instance_id')->toArray();
 
+        $groups = SchoolStructureInstance::where('school_id', Auth::user()->school->id)
+        ->whereIn('id', $groups_list)
+        ->get();
         return Inertia::render('Forms/EditForms/EditStudent', [
             'user' => $user,
             'account' => $account,
+            'groups' => $groups,
+            'default_group'=>$default->group_id
+
         ]);
     }
 
@@ -145,18 +153,21 @@ class AbsenceManagerController extends Controller
             'email' => ['required', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'],
             'password' => ['required', 'string', 'min:8'],
             'phone_number' => ['nullable', 'regex:/^(\+?\d{1,3}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}$/'],
+             'group'=>['nullable']
         ]);
 
         $user = User::where('user_key', $user_key)->firstOrFail();
         $account = Account::where('user_key', $user_key)->firstOrFail();
-
+        $student = StudentPath::where('student_account_id', $user->id)->firstOrFail();
+        $student->group_id=$validated['group'];
+       $student->save();
         $user->full_name = $validated['full_name'];
         $user->birth_date = $validated['birth_date'];
         $user->gender = $validated['gender'];
         $user->email = $validated['email'];
         $user->phone_number = $validated['phone_number'] ?? null;
         $user->save();
-
+        
         $account->password = Hash::make($validated['password']);
         $account->original_password = $validated['password'];
         $account->save();

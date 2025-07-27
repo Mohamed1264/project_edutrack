@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Group;
 use App\Models\Schedule;
 use App\Models\StudentPath;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; 
 use Inertia\Inertia;
 
 class AbsenceController extends Controller
-{
+{      
+    
+
     public function create($id) {
         // Find the session (schedule)
         $session = Schedule::with(['group.structureInstance', 'time_slot', 'day', 'room', 'teacher'])->findOrFail($id);

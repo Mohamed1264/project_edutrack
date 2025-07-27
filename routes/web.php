@@ -88,7 +88,7 @@ Route::middleware([Authenticate::class, CheckRole::class.':Admin'])->group(funct
 });
 
 Route::middleware([Authenticate::class, CheckRole::class . ':Absence Manager'])->group(function () {
-
+  
     Route::get('/absenceManager', [DashboardController::class, 'absenceManagerDashBoard'])->name('absenceManager.dashboard');
 
     Route::get('/students', [AbsenceManagerController::class, 'student'])->name('students');
@@ -115,7 +115,7 @@ Route::middleware([Authenticate::class, CheckRole::class . ':Absence Manager'])-
     Route::get('/schedules/lists', [DashboardController::class, 'absenceManagerDashBoard'])->name('schedules.lists');
 });
 
-
+      
 
 Route::middleware([Authenticate::class, CheckRole::class.':Teacher'])->group(function() {
     Route::get('/teacher',[DashboardController::class,'teacherDashboard'])->name('teacher.dashboard');
@@ -123,7 +123,8 @@ Route::middleware([Authenticate::class, CheckRole::class.':Teacher'])->group(fun
     Route::inertia('/updateAbsence/{id}', 'Teacher/ListAbsence2')->name('teacher.updateAbsence');
     Route::inertia('/schedule/archive/teachers/{id?}', 'Teacher/Dashboard')->name('teacher.archive');
     Route::inertia('/progress/teachers/{id?}', 'Teacher/Dashboard')->name('teacher.progress');
-
+// routes/web.php
+Route::post('/absences', [AbsenceController::class, 'store']);
 });    
 
 

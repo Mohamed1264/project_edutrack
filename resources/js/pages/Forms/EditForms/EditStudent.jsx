@@ -10,12 +10,25 @@ import { useState } from "react";
 import { calculateAge } from "../../../utils/calcAge";
 import { generateStrongPassword } from "../../../utils/generatePassword";
 import Layout from '../../../layouts/Layout';
+import { useEffect } from "react";
+import { CustomSelect } from "../../../Components/form/CustomSelect";
 
-
-export default function EditUser({ user, account }) {
+export default function EditUser({ user, account,groups,default_group }) {
   const [isConfirmAddingOpen, setIsConfirmAddingOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  console.log(default_group);
+  
+  const [groupsList, setGroupsList] = useState([]);
+  useEffect(() => {
+    setGroupsList(
+      groups.map(g => ({
+        value: g.id,
+        label: g.name
+    }))
+    );
+  }, [groups]);
+  console.log(groupsList);
+  
   const initialValues = {
     fullName: user.full_name,
     birthDate: user.birth_date,
@@ -24,6 +37,7 @@ export default function EditUser({ user, account }) {
     matricule: user.user_key,
     password: account.original_password,
     phone: user.phone_number,
+    group: default_group
   };
 
   const validation = {
@@ -62,12 +76,13 @@ export default function EditUser({ user, account }) {
     handleSubmit,
     resetForm,
     isSubmitDisabled,
-  } = formsHook(initialValues, validation, 'add');
+  } = formsHook(initialValues, validation, 'edit');
 
   // Called when the form is submitted (before final confirm)
   const onSubmit = () => {
     setIsConfirmAddingOpen(true);
   };
+  console.log(values);
 
   // Called when user confirms the update in modal
   const handleConfirm = () => {
@@ -82,8 +97,13 @@ export default function EditUser({ user, account }) {
       user_key: values.matricule,
       password: values.password,
       phone_number: values.phone,
-    };
+      group:values.group
 
+    };
+    console.log(values);
+    
+    console.log(payload);
+    
     router.put(`/students/${user.user_key}`, payload, {
       onSuccess: () => {
         setIsLoading(false);
@@ -101,6 +121,7 @@ export default function EditUser({ user, account }) {
   const handleClose = () => {
     setIsConfirmAddingOpen(false);
   };
+console.log(values.group);
 
   return (
     <Layout>
@@ -189,7 +210,16 @@ export default function EditUser({ user, account }) {
                 icon={Mail}
               />
             </div>
-
+            <CustomSelect
+              label='Group'        
+              name="group"
+              nameKey="name"
+              id='id'
+              items={groups}
+              value={values.group}
+              handleChange={handleChange}
+              options={groupsList}  
+            />
             <div className="flex gap-2 w-full items-center">
               <PasswordField
                 error={errors.password}

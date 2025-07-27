@@ -1,18 +1,20 @@
 import { useState } from 'react';
-import { usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import Layout from '../../layouts/Layout';
-import { ListHeader, TableListBody, TableListHeader } from '../../Components/Teacher/ListComponents';
+import {
+  ListHeader,
+  TableListBody,
+  TableListHeader
+} from '../../Components/Teacher/ListComponents';
 
-export default function TakeAbsence({ initialGroup }) {
-  // Use initial group from props
+export default function TakeAbsence({ initialGroup ,schedule , absence}) {
   const groupData = initialGroup || null;
-console.log(groupData);
-
-  // Safely extract students from the group
+  console.log(absence);
+  
   const studentsData = groupData?.students || [];
-console.log(studentsData);
-
-  // Format current date
+  const { id: groupId } = groupData || {};
+  console.log(schedule);
+  
   const formattedDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -20,54 +22,71 @@ console.log(studentsData);
     day: 'numeric',
   });
 
-  // Generate initial absence data
-  const initialAbsenceData = () =>
+  const generateInitialAbsenceData = () =>
     studentsData.map((student) => ({
       student_id: student.id,
       type: 'Present',
       isJustified: false,
     }));
 
-  const [absenceData, setAbsenceData] = useState(initialAbsenceData());
+  const [absenceData, setAbsenceData] = useState(generateInitialAbsenceData());
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Reset form
   const handleReset = () => {
-    setAbsenceData(initialAbsenceData());
+    setAbsenceData(generateInitialAbsenceData());
     setIsSubmitted(false);
+    setSuccessMessage('');
   };
 
-  // Handle radio button change
-  const handleRadioChange = (student_id, type) => {
+  const handleStatusChange = (studentId, newStatus) => {
     setAbsenceData((prev) =>
       prev.map((item) =>
-        item.student_id === student_id ? { ...item, type } : item
+        item.student_id === studentId ? { ...item, type: newStatus } : item
       )
     );
   };
+console.log(absenceData);
 
-  // Submit form (you can integrate Inertia.post or axios here)
   const submitAbsence = (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
 
-    // Replace with actual API call
-    console.log("Submitted Absences:", absenceData);
-    alert('Attendance recorded successfully!');
+    router.post(
+      '/absences',
+      {
+        group_id: groupId,
+        absences: absenceData,
+        schedule_data: schedule,
+        formattedDate:formattedDate
+      },
+      {
+        onSuccess: () => {
+          setIsSubmitted(true);
+          setSuccessMessage('Attendance submitted successfully!');
+        },
+        onError: (errors) => {
+          console.error('Error submitting attendance:', errors);
+          alert('Failed to record attendance. Please try again.');
+        },
+      }
+    );
   };
-console.log(absenceData);
 
   return (
     <Layout>
       <div className="mt-4 text-gray-700 dark:text-gray-50 max-w-5xl mx-auto px-7 pr-5">
-        {/* Header */}
         <ListHeader
           groupLibel={groupData?.name || 'Unknown Group'}
           studentsCount={studentsData.length}
           date={formattedDate}
         />
 
-        {/* Attendance Form */}
+        {successMessage && (
+          <div className="mb-4 px-4 py-3 bg-green-100 text-green-800 rounded">
+            {successMessage}
+          </div>
+        )}
+
         {studentsData.length > 0 ? (
           <form
             onSubmit={submitAbsence}
@@ -76,9 +95,10 @@ console.log(absenceData);
             <TableListHeader />
 
             <TableListBody
-              filteredStagiaires={studentsData}
+              students={studentsData}
               absenceData={absenceData}
-              handleRadioChange={handleRadioChange}
+              absenceOld={absence}
+              onStatusChange={handleStatusChange}
               isSubmitted={isSubmitted}
             />
 
@@ -87,6 +107,7 @@ console.log(absenceData);
                 type="button"
                 onClick={handleReset}
                 className="text-gray-50 bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-3 max-w-40 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={isSubmitted}
               >
                 Reset
               </button>
@@ -95,7 +116,7 @@ console.log(absenceData);
                 disabled={isSubmitted}
                 className="text-gray-50 bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-3 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Submit Attendance
+                {isSubmitted ? 'Submitted' : 'Submit Attendance'}
               </button>
             </div>
           </form>
