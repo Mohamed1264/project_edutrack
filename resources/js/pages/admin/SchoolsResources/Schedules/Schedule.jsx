@@ -3,7 +3,7 @@ import { successNotify } from "../../../../Components/Common/Toast";
 import DeleteSessionModal from "./modals/DeleteSessionModal";
 import ManagingScheduleModal from "./modals/ManagingScheduleModal";
 import ScheduleContainer from "../../../../Components/Schedule/ScheduleContainer";
-import { exportScheduleAsPdf } from "../../../../utils/Export/ExportScheduleAsPdf";
+import { exportToPDF } from "../../../../utils/Export/ExportAsPdf";
 import ContextMenu from "./modals/ContextMenu";
 import ClearScheduleModal from "./modals/ClearScheduleModal";
 import ScheduleHeader from "../../../../Components/Schedule/ScheduleHeader";
@@ -19,8 +19,20 @@ import DotLoader from '../../../../Components/Loader/DotLoader'
 import { router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 
+
+
+
+
+
 export default function Schedule({type,name,sessions,timeSlots,workingDays, owner}) {
-     console.log(owner)
+
+    console.log(sessions        );
+    
+    
+    
+
+
+
     const scheduleSessions = timeSlots
     
     
@@ -38,11 +50,14 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
             addVersion,
             resetScheduleVersions
     } = useScheduleVersion(sessions);
+    
+   console.log(scheduleVersions.length);
    
     const { getModalState, openModal, closeModal, closeAllModals } = useModalState();
 
     const modal = {closeModal,closeAllModals}
     const versioning = {addVersion,resetScheduleVersions}
+    
     const {
             schedule,
             setSchedule,
@@ -80,8 +95,9 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
             };
     }, [selectedSession,resetContextMenu]);
 
-    const displayedSchedule = schedule.filter(session => session.raw.status !== 'Archived');
-
+    const displayedSchedule = schedule.schedule||schedule;
+    console.log(schedule);
+    
 
 
 
@@ -119,8 +135,9 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
             })
 
         }
-
+       
         console.log(schedule);
+        
         
     return (
     <>
@@ -143,14 +160,15 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
                         handleNextVersion={() => setSchedule(goToNextVersion())}
                         entity={type}
                         activeScheduleVersion={activeScheduleVersion}
-                        scheduleVersionsLength={scheduleVersions.length}
+                        scheduleVersionsLength={scheduleVersions.length-1}
                         scheduleLength={displayedSchedule.length}
+                        
                         handleClearSchedule={() => openModal('clearSchedule')}
                         handleSaveChanges={handleSaveChanges}
                         owner={owner}
                         name={name}
                         numberHours={displayedSchedule.length * 2.5}
-                        handleExport = {()=>{}}
+                        handleExport = {() => exportToPDF("schedule",owner,name,schedule.datation,displayedSchedule)}
                     />
 
                     <ScheduleContainer    
@@ -238,5 +256,3 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
         </>
     );
 }
-
-

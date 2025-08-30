@@ -1,3 +1,5 @@
+import { Archive } from "lucide-react";
+
 export const Sessions = ({sessions})=>{
     const nbrSessions = sessions.length
     function removeSeconds(timeString) {
@@ -63,8 +65,10 @@ export const FullSession = ({title,sousTitle,status, type })=>{
         Active : '  bg-purple-100   border-purple-600 hover:bg-purple-200 text-purple-700 dark:bg-purple-950 dark:hover:bg-purple-900/70  dark:border-purple-500 dark:text-purple-50',
         Remotely : '  bg-cyan-100   border-cyan-600 hover:bg-cyan-200 text-cyan-700 dark:bg-cyan-950 dark:hover:bg-cyan-900/70  dark:border-cyan-500 dark:text-cyan-50',
         Temporary : ' bg-orange-100   border-orange-600 hover:bg-orange-200 text-orange-700 dark:bg-yellow-950 dark:hover:bg-yellow-900/70  dark:border-orange-500 dark:text-orange-50',
-        deleted : '  bg-red-100   border-red-600 hover:bg-red-200 text-red-700 dark:bg-red-700/70 dark:hover:bg-red-600/70  dark:border-red-600 dark:text-red-50 opacity-40',
-    }
+        deleted : '  bg-green-100   border-green-600 hover:bg-red-200 text-red-700 dark:bg-red-700/70 dark:hover:bg-red-600/70  dark:border-red-600 dark:text-red-50 opacity-40',
+        Archived:'  bg-green-100   border-green-600 hover:bg-green-200 text-green-800 dark:bg-green-700/70 dark:hover:bg-green-600/70  dark:border-green-600 dark:text-green-50 opacity-100',
+       
+          }
     return (
         <div
         className={`

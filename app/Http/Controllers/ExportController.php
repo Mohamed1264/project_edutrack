@@ -19,7 +19,7 @@ class ExportController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function scheduleExport(Request $request)
-    {
+    { 
         $user = Auth::user();
         if (!$user || !$user->school) {
             return response()->json([

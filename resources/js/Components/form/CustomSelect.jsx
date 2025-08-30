@@ -5,9 +5,10 @@ import { FieldContainer } from "./GlobalComponents"
 export default function Select({ config }) {
     const { name, onChange,id, defaultValue, placeholder,nameKey, items, position = 'bottom' } = config
   const  deafault_item=items.filter(i=>i.id==defaultValue).map(i=>i.name)
+    console.log(placeholder);
     
     const [isSelectItem, setIsSelectItem] = useState(false)
-    const [currentValue, setCurrentValue] = useState(deafault_item)
+    const [currentValue, setCurrentValue] = useState('')
     const [search, setSearch] = useState('')
     console.log(currentValue);
     
@@ -109,6 +110,7 @@ export default function Select({ config }) {
                     />
                     <div className="max-h-40 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] space-y-1 mt-2">
                         {data.length > 0 ? (
+                            
                             data.map((item) => (
                                 <span
                                     key={item.id}
@@ -149,7 +151,7 @@ export const CustomSelect = ({items,label,nameKey ,id, name , handleChange , val
        position : position  ,
        nameKey   :nameKey
     }
-console.log(value);
+console.log(placeholder);
 
     return (
        <FieldContainer label={label}>

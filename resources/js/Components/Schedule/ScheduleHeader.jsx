@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function ScheduleHeader({handlePreviousVersion,handleExport, handleNextVersion, activeScheduleVersion, scheduleVersionsLength, scheduleLength, handleClearSchedule, handleSaveChanges,  owner,name,entity , numberHours}) {
     const [saveMenu,setSaveMenu] = useState(false)
-    const ownerName = owner[name]
+    const ownerName = owner[name] 
    
     
     const getGender = (gender) => {
@@ -15,7 +15,7 @@ export default function ScheduleHeader({handlePreviousVersion,handleExport, hand
     const save = (saveWithExport) => {
         if (saveWithExport){
             handleSaveChanges()
-            handleExport()
+            handleExport() 
             return false
         }
         handleSaveChanges()
@@ -38,7 +38,7 @@ export default function ScheduleHeader({handlePreviousVersion,handleExport, hand
                             <div className="flex items-center gap-2">
                                 <button 
                                     onClick={handlePreviousVersion}
-                                    disabled={activeScheduleVersion === 1}
+                                    disabled={activeScheduleVersion == 1}
                                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 
                                         rounded-lg hover:bg-gray-50 focus:outline-none 
                                         dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 

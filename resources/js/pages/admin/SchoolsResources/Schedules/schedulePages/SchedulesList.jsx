@@ -236,3 +236,6 @@ export default function SchedulesList ({data,type,name,key}) {
       
     )
 }
+
+
+

@@ -16,7 +16,7 @@ class Group extends Model
     /** @use HasFactory<\Database\Factories\GroupsFactory> */
     use HasFactory;
     protected $fillable = [
-        'schoole_structure_instance_id','type','school_id'
+        'school_structure_unit_id','type','school_id'
     ];
     public function school()
     {
@@ -26,7 +26,7 @@ class Group extends Model
     public static function getGroupInfo($id,$school_id){
         return DB::table('groups')
         ->join('schools','schools.id','=','groups.school_id')
-        ->join('school_structure_instances as SSI','SSI.id' ,'=','groups.school_structure_instance_id')
+        ->join('school_structure_instances as SSI','SSI.id' ,'=','groups.school_structure_unit_id')
         ->where('groups.school_id',$school_id)
         ->where('groups.id',$id)
         ->select('groups.id','SSI.name','groups.type')
@@ -36,9 +36,9 @@ class Group extends Model
 
     public function structureInstance()
 {
-    return $this->belongsTo(SchoolStructureInstance::class,'school_structure_instance_id');
+    return $this->belongsTo(SchoolStructureInstance::class,'school_structure_unit_id');
 }
-
+    
 public function mergedFrom()
 {
     return $this->belongsToMany(Group::class, 'group_merges', 'merged_group_id', 'original_group_id');
@@ -60,6 +60,10 @@ public function teacherProgress()
     return $this->belongsToMany(Account::class, 'group_teacher_progress', 'group_id', 'account_id')
                 ->withPivot('current_hours', 'total_hours')
                 ->withTimestamps();
+}
+public function parent()
+{
+    return $this->belongsTo(SchoolStructureInstance::class, 'school_structure_unit_id');
 }
 
 public function studentPaths()

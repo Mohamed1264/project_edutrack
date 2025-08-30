@@ -7,10 +7,10 @@ const links = [
     {
         name: "Home",
         route_name: "schoolResources"
-    },
+    },     
     {
         name: "Levels",
-        route_name: "schoolResources"
+        route_name: "schoolResources.levels"
     },
     {
         name: "Fields",
@@ -36,11 +36,7 @@ const links = [
     {
         name: "Schedules",
         route_name: "schoolResources.schedules.index"
-    },
-    {
-        name: "Progress",
-        route_name: "schoolResources.progress.index"
-    },
+    }
     
         
 ]
@@ -76,15 +72,7 @@ export default function SchoolResourcesLayout ({children}){
                 <nav className="w-full border-b border-gray-200 dark:border-gray-700 flex flex-1 items-center gap-3   px-6 py-2 bg-indigo-50 dark:bg-indigo-900/50 2xl:py-6  justify-between ">
                     
                     <Links/>
-                        {
-
-                            <Link href={`/`} className="px-4 py-2 rounded-lg font-medium text-sm 2xl:text-xl
-                                bg-indigo-500 text-white hover:bg-indigo-600
-                                dark:bg-indigo-700 dark:hover:bg-indigo-800
-                                transition-colors duration-200">
-                                Add New
-                            </Link>
-                        }
+                        
                    
                 </nav>
     

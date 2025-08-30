@@ -72,20 +72,23 @@ export const SelectInput = ({handleChange , placeholder , value,items,labelKey,v
               {
                 items.map((item , index) => (
                   <button
-                      key={item[labelKey]}
-                      type="button"
-                      onClick={() => handleSelect(item[valueKey])}
-                      className={`w-full px-4 py-2 text-left text-sm font-medium
-                                 ${value === item[valueKey] ? 
-                                  'bg-purple-100 dark:bg-purple-600 text-purple-700 dark:text-white hover:bg-purple-200 dark:hover:bg-purple-700' 
-                                  : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-                                  } 
-                                 transition-colors 
-                                ${index === items.length - 1 ? 'rounded-b-lg' : ''}
-                      `}
-                  >
-                      {item[labelKey]}
-                  </button>
+                    key={`${item[valueKey]}-${index}`}
+                    type="button"
+                    onClick={() => handleSelect(item[valueKey])}
+
+                    className={`w-full px-4 py-2 text-left text-sm font-medium
+                        ${value === item[valueKey] ? 
+                        'bg-purple-100 dark:bg-purple-600 text-purple-700 dark:text-white hover:bg-purple-200 dark:hover:bg-purple-700' 
+                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        } 
+                        transition-colors 
+                        ${index === items.length - 1 ? 'rounded-b-lg' : ''}
+                    `}
+                    value={item[valueKey]}
+                    >
+                        {item[labelKey]}
+                    </button>
+
               ))}
           </div>
       )}
@@ -94,21 +97,22 @@ export const SelectInput = ({handleChange , placeholder , value,items,labelKey,v
     )
 }
 
-export const SelectField = ({label ,handleChange , placeholder ,name , value,items}) =>{
+export const SelectField = ({ label, handleChange, placeholder, name, value, items, labelKey = "option", valueKey = "value" }) => {
+const handleSelect = (selectedValue,index) => {
+  handleChange(name, index); 
+};
+  return (
+    <FieldContainer label={label}>
+      <SelectInput 
+        handleChange={handleSelect} 
+        placeholder={placeholder} 
+        value={value} 
+        items={items}
+        labelKey={labelKey}
+        valueKey={valueKey}
+        name={name}
+      />
+    </FieldContainer>
+  );
+};
 
-    const handleSelect = (item)=>{
-       
-        handleChange(name,item)
-    }
-    return (
-        <FieldContainer label={label}>
-             <SelectInput 
-                handleChange={handleSelect} 
-                placeholder={placeholder} 
-                value={value} 
-                items={items} 
-              />
-        </FieldContainer>
-            
-    )
-}

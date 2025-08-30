@@ -101,7 +101,7 @@ const typeConfig = {
    
   },
 };
-export function Cards({ type, total, label }) {
+export default function Cards({ type, total, label }) {
   const config = typeConfig[type];
 
   return (

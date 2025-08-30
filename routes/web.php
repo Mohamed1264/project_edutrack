@@ -20,6 +20,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\AbsenceController;
 
+use App\Http\Controllers\FiliereController;
+use App\Http\Controllers\GroupController;
+use App\Http\Controllers\LevelController;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\OptionController;
+
 // Public routes - no middleware
 Route::middleware([RedirectTo::class])->group(function (){
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -63,11 +69,34 @@ Route::middleware([Authenticate::class, CheckRole::class.':Admin'])->group(funct
     Route::prefix('schoolResources')->group(function () {
         Route::inertia('/', 'admin/SchoolsResources/SchoolResources')->name('schoolResources');
 
-        Route::inertia('/groups', 'admin/SchoolsResources/Groups/Groups')->name('schoolResources.groups');
-        Route::inertia('/levels', 'admin/SchoolsResources/Levels/Levels')->name('schoolResources.levels');
-        Route::inertia('/years', 'admin/SchoolsResources/Years/Years')->name('schoolResources.years');
-        Route::inertia('/options', 'admin/SchoolsResources/Options/Options')->name('schoolResources.options');
-        Route::inertia('/fields', 'admin/SchoolsResources/Filieres/Filieres')->name('schoolResources.fields');
+        
+        Route::get('/levels',  [LevelController::class,'index'])->name('schoolResources.levels');
+        Route::get('/addLevel', [LevelController::class,'create'])->name('schoolResources.addLevel'); 
+        Route::post('/levels', [LevelController::class, 'store'])->name('schoolResources.levels.store');
+        Route::get('/levels/{level}', [LevelController::class, 'show'])->name('schoolResources.levels.show');
+        Route::get('/levels/{level}/edit', [LevelController::class, 'edit'])->name('schoolResources.levels.edit');
+        Route::put('/levels/{level}', [LevelController::class, 'update'])->name('schoolResources.levels.update');
+        Route::delete('/levels/{level}', [LevelController::class, 'destroy'])->name('schoolResources.levels.destroy');
+
+
+        
+        Route::get('/fields', [FiliereController::class,'index'])->name('schoolResources.fields');
+        Route::get('/addField', [FiliereController::class, 'create'])->name('schoolResources.addField');
+        Route::post('/fields', [FiliereController::class, 'store'])->name('schoolResources.fields.store');
+        Route::get('/fields/{filiere}', [FiliereController::class, 'show'])->name('schoolResources.fields.show');
+        Route::get('/fields/{filiere}/edit', [FiliereController::class, 'edit'])->name('schoolResources.fields.edit');
+        Route::put('/fields/{filiere}', [FiliereController::class, 'update'])->name('schoolResources.fields.update');
+        Route::delete('/fields/{filiere}', [FiliereController::class, 'destroy'])->name('schoolResources.fields.destroy');
+
+        Route::get('/addGroup', [GroupController::class, 'create'])->name('schoolResources.addGroup');
+        Route::post('/groups/add', [GroupController::class, 'store'])->name('groups.store');
+
+        Route::get('/groups', [GroupController::class,'index'])->name('schoolResources.groups');
+        Route::get('/groups/{group}', [GroupController::class, 'show'])->name('groups.show');
+        Route::get('/groups/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
+        Route::put('/groups/{group}', [GroupController::class, 'update'])->name('groups.update');
+        Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('schoolResources.groups.destroy');
+        
 
         Route::inertia('/schedules', 'admin/SchoolsResources/Schedules/schedulePages/Home')->name('schoolResources.schedules.index');
         Route::get('/schedules/{type}', [ScheduleController::class ,'showSchedulesList'])->name('schoolResources.schedules.list');
@@ -76,9 +105,18 @@ Route::middleware([Authenticate::class, CheckRole::class.':Admin'])->group(funct
         Route::get('/schedules/{type}/{id}/availability', [ScheduleController::class, 'getAvailability'])->name('schedules.availability');
         Route::post('/schedules/save', [ScheduleController::class, 'save'])->name('schedules.save');
 
-        Route::inertia('/rooms', 'admin/SchoolsResources/Rooms')->name('schoolResources.rooms');
+        Route::get('/rooms', [RoomController::class,'index'])->name('schoolResources.rooms');
+        Route::get('/addRoom', [RoomController::class, 'create'])->name('schoolResources.addRoom');
+        Route::post('/rooms/add', [RoomController::class, 'store'])->name('rooms.store');
+        Route::get('/rooms/{room}/edit', [RoomController::class, 'edit'])->name('rooms.edit');
+        Route::put('/rooms/{room}', [RoomController::class, 'update'])->name('room.update');
+        Route::delete('/rooms/{room}', [RoomController::class, 'destroy'])->name('schoolResources.rooms.destroy');
+        
+
 
         Route::inertia('/progress', 'admin/SchoolsResources/Progress/Progress')->name('schoolResources.progress.index');
+
+        Route::post('/export', [ExportController::class, 'scheduleExport'])->name('ExportSchedule');
 
         // Route::inertia('/options', 'admin/Indexes/SchoolRessources')->name('schoolResources.options');
         // Route::inertia('/levels', 'admin/Indexes/SchoolRessources')->name('schoolResources.levels');

@@ -85,7 +85,8 @@ const RenderSessionCell = ({
         <div 
             key={`${dayIndex}-${sessionIndex}`} 
             className={getClassName(sessionIndex,dayIndex,isSessionExits,entity,numberDays,numberTimeSlots)}
-            onContextMenu={(e) => handleRowRightClick(session,e)}
+            onContextMenu={(e) => {
+                session.raw.status!='Archived'&& handleRowRightClick(session,e)}}
 
         >
             {isSessionExits && (

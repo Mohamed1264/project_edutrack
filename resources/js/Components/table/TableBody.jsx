@@ -62,7 +62,11 @@ export default function TableBody({ filteredData, tableConfig, gridTemplateColum
     e.stopPropagation();
 
     const rect = e.currentTarget.getBoundingClientRect();
-    setContextMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+    console.log(rect);
+    const MarginTop = rect.top>260 ? rect.top-120: rect.top 
+    console.log(rect.top>260);
+    
+    setContextMenuPosition({ top: MarginTop, left: rect.left + window.scrollX });
 
     if (selectedItem?.[primaryKey] === row[primaryKey]) {
       setSelectedItem(null);
@@ -70,7 +74,6 @@ export default function TableBody({ filteredData, tableConfig, gridTemplateColum
       setSelectedItem(row);
     }
   };
-  console.log(ids);
   
 
   return (

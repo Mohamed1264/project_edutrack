@@ -35,7 +35,7 @@ class SchoolStructureInstance extends Model
 
     public function groups()
     {
-        return $this->hasOne(Group::class,'school_structure_instance_id');
+        return $this->hasOne(Group::class,'school_structure_unit_id');
     }
 
     

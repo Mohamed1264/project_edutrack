@@ -26,6 +26,8 @@ export default function TableContainer ({
     title,
     
 }) {
+  console.log(tableConfig);
+  
         const {columns,filterBy,name} = tableConfig
         const { searchQuery, 
                 chooseColumns,
@@ -53,14 +55,15 @@ export default function TableContainer ({
         const totalPages = Math.ceil(totalItems / pageSize);
         const startIndex = (currentPage - 1) * pageSize;
         const paginatedData = sortedData.slice(startIndex, startIndex + pageSize);
-
+        
         
         const resetModal = () => {
           setActiveModal(null)
           setSelectedItem(null)
           setRowIndex(null)
         }
-
+ console.log(namesKey);
+        
         return (
             <>
 

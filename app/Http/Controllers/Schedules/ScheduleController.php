@@ -69,7 +69,7 @@ class ScheduleController extends Controller
          ;
                 $schedule  = Schedule::where('teacher_id', $id)
                   ->where('school_id', $school->id)
-                  ->where('version_end_date', null)
+                  ->orderBy('version_end_date','desc')
                   ->get()->map(function ($session){
                     return $this->session($session);
                   });
@@ -81,7 +81,7 @@ class ScheduleController extends Controller
                 $group = Group::getGroupInfo($id,$school->id);
                 $schedule  = Schedule::where('group_id', $id)
                   ->where('school_id', $school->id)
-                  ->where('version_end_date', null)
+                  ->orderBy('version_end_date','desc')
                   ->get()->map(function ($session){
                     return $this->session($session);
                   });
@@ -96,7 +96,7 @@ class ScheduleController extends Controller
                 $room = $school->rooms->find($id);
                 $schedule  = Schedule::where('room_id', $id)
                 ->where('school_id', $school->id)
-                ->where('version_end_date', null)
+                ->orderBy('version_end_date','desc')
                 ->get()->map(function ($session){
                   return $this->session($session);
                 });
@@ -194,7 +194,7 @@ class ScheduleController extends Controller
     $availableGroups = Group::with('structureInstance:id,name')
         ->where('school_id', $schoolId)
         ->whereNotIn('id',$busyGroupIds)
-        ->get(['id','school_structure_instance_id'])
+        ->get(['id','school_structure_unit_id'])
         ->map(function($group){ 
             return [
                 'id'=>$group->id, 

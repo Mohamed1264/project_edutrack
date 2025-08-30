@@ -143,7 +143,7 @@ class School extends Model
     public function getGroups(){
         return DB::table('groups')
         ->join('schools','schools.id','=','groups.school_id')
-        ->join('school_structure_instances as SSI','SSI.id' ,'=','groups.school_structure_instance_id')
+        ->join('school_structure_instances as SSI','SSI.id' ,'=','groups.school_structure_unit_id')
         ->where('groups.school_id',$this->id)
         ->select('groups.id','SSI.name','groups.type')
         ->get();

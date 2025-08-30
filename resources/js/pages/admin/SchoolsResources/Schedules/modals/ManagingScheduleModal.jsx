@@ -43,7 +43,7 @@ export default function ManagingScheduleModal({
             case 'groups':
                 return ! ( (sessionState?.raw.type === 'Presential' ? sessionState?.display.room : true) && isTemporaryValid && sessionState?.display.teacher )
             case 'rooms':
-                return  !(sessionState?.display.teacher_name && sessionState?.display.group_name && isTemporaryValid)
+                return  !(sessionState?.display.teacher && sessionState?.display.group && isTemporaryValid)
             default:
                 return true;
         }

@@ -21,7 +21,8 @@ export default function DropDownMenu({ config, item, position = "right-0" }) {
   const { links = {}, modals = [], primaryKey, path } = config || {};
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
-
+  console.log(config);
+  
   const handleDelete = () => {
     console.log(path);
     

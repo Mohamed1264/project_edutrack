@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_structure_instance_id')->constrained('school_structure_instances')->onDelete('cascade');
+            $table->foreignId('school_structure_unit_id')->constrained('school_structure_instances')->onDelete('cascade');
             $table->foreignId('school_id')->constrained('schools')->onDelete('cascade');
-            $table->enum('type',['Regular','Optional']);
+            $table->enum('type',['Regulaire','Optionel']);
             $table->timestamps();
         });
     }

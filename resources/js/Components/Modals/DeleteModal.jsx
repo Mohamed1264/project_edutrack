@@ -6,7 +6,8 @@ export default function DeleteModal({ name ,resetModal,itemName,handleDelete = (
   const popoverRef = useRef(null);
   // Close popup when clicking outside
   useClickOutSide(resetModal, popoverRef)
-
+   console.log(handleDelete);
+   
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
       <div className="relative w-full max-w-md mx-4">

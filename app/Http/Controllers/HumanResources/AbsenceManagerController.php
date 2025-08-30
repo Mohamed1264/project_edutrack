@@ -40,7 +40,7 @@ class AbsenceManagerController extends Controller
     // Show form to create a new student
     public function create()
     {
-        $groups_list= Group::pluck('school_structure_instance_id')->toArray();
+        $groups_list= Group::pluck('school_structure_unit_id')->toArray();
 
         $groups = SchoolStructureInstance::where('school_id', Auth::user()->school->id)
         ->whereIn('id', $groups_list)
@@ -129,7 +129,7 @@ class AbsenceManagerController extends Controller
         $user = User::with('role')->where('user_key', $user_key)->firstOrFail();
         $account = Account::where('user_key', $user_key)->firstOrFail();
         $default= StudentPath::where('student_account_id',$user->id)->firstOrFail();;
-        $groups_list= Group::pluck('school_structure_instance_id')->toArray();
+        $groups_list= Group::pluck('school_structure_unit_id')->toArray();
 
         $groups = SchoolStructureInstance::where('school_id', Auth::user()->school->id)
         ->whereIn('id', $groups_list)
@@ -184,9 +184,14 @@ class AbsenceManagerController extends Controller
             return back()->with('error', 'User not found.');
         }
 
-        Account::where('user_key', $user->user_key)->delete();
-        $user->delete();
 
-        return back()->with('success', 'User and associated accounts deleted successfully.');
+        try {
+
+            Account::where('user_key', $user->user_key)->delete();
+            $user->delete();
+            return back()->with('success', 'User and associated accounts deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'User and associated accounts dont deleted.');
+        }
     }
 }
