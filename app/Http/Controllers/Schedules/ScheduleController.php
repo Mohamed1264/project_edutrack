@@ -276,7 +276,7 @@ public function save(Request $request){
         }
     }
 
-    return back();
+    return redirect('/schoolResources/schedules');
 
 
 }
@@ -293,7 +293,7 @@ public function clearSchedule (Request $request){
     };
     $isExists = Schedule::where($foreginKey,$id)
     ->where('version_end_date',null)->exists();
-    if ($isExists) {
+    if (!$isExists) {
         if ($request->wantsJson() || $request->header('X-Inertia')) {
             return response()->json(['success' => false, 'message' => 'Schedule already empty'], 200);
         }

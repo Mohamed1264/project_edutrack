@@ -6,6 +6,7 @@ import { successNotify } from '../../Components/Common/Toast'; // Adjust import 
 export const useSessionManagement = (initialSchedule = [],modal, versioning ) => {
     const {closeModal,closeAllModals} = modal;
     const {addVersion,resetScheduleVersions} = versioning;
+
   // Ensure schedule state is always an array even if initialSchedule is an object with a `schedule` property
   const initial = Array.isArray(initialSchedule)
     ? initialSchedule
@@ -19,7 +20,8 @@ export const useSessionManagement = (initialSchedule = [],modal, versioning ) =>
     end_date: null
 });
    
-
+  console.log(schedule);
+  
   const modifySession = (e, sessionState) => {
   e.preventDefault();
 

@@ -1,3 +1,4 @@
+import { Eclipse } from "lucide-react";
 import { useState } from "react";
 
 const useScheduleVersions = (initialSchedule) => {
@@ -10,6 +11,7 @@ const useScheduleVersions = (initialSchedule) => {
   function groupSchedule(data) {
     if (!data || data.length === 0) return [{ id: 0, schedule: [] }];
 
+
     let versions = [{ id: 0, schedule: [] }]; // نسخة id=0 خاصة باللي عندهم end_date=null
     let currentVersion = [];
     let currentEndDate = null;
@@ -17,31 +19,42 @@ const useScheduleVersions = (initialSchedule) => {
     let DateEnd=null
     data.forEach((row, index) => {
       console.log(row.raw);   
-      const rowEndDate = row.raw
-        ? new Date(row.raw.version_end_date)
-        : null;
-        
-      let endDate = row.raw.version_end_date
-       DateEnd=currentEndDate ? currentEndDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-      
+      const rowEndDate = row.raw.version_end_date
+  ? new Date(row.raw.version_end_date)
+  : null;
+
+
+const DateEnd = currentEndDate
+  ? currentEndDate.toISOString().split('T')[0]
+  : new Date().toISOString().split('T')[0];
+
+console.log(DateEnd<=rowEndDate);
+
+       
       const rowStartDate = new Date(row.raw.version_start_date);
       
-      if (rowStartDate<new Date(currentstartDate) || !currentstartDate) {
+      if (rowStartDate<currentstartDate || !currentstartDate) {
         
         currentstartDate=row.raw.version_start_date
       }
-      console.log(rowStartDate >currentEndDate );
-
+      console.log( rowStartDate.getTime() );
+      console.log(currentEndDate );
+      
+      
         
       // أول مرة نحدد currentEndDate
       if (currentEndDate === null  ) {
         currentEndDate = rowEndDate;
         currentVersion.push(row);
       }
-      if (
+      else if (
         rowEndDate <currentEndDate || // نهاية أصغر → نسخة جديدة
-        rowStartDate <= currentEndDate // البداية أصغر من نهاية النسخة الحالية → نسخة جديدة
+        rowStartDate > currentEndDate // البداية أصغر من نهاية النسخة الحالية → نسخة جديدة
       ) {
+
+        console.log(rowEndDate);
+        console.log(currentEndDate.getTime());
+        
         
         // close current version
         versions.push({
@@ -113,7 +126,7 @@ const useScheduleVersions = (initialSchedule) => {
     
     const nextVersion = activeScheduleVersion + 1;
     setActiveScheduleVersion(nextVersion);
-    console.log(activeScheduleVersion);
+    console.log(nextVersion);
 
     return (
       scheduleVersions.find((v) => v.id === nextVersion)|| []
@@ -125,7 +138,7 @@ const useScheduleVersions = (initialSchedule) => {
       scheduleVersions.find((v) => v.id === activeScheduleVersion)||[]
     );
   };
-
+      
   return {
     activeScheduleVersion,
     scheduleVersions,

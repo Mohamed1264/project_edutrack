@@ -28,8 +28,16 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
 
     console.log(sessions        );
     
-    
-    
+    console.log(owner.id);
+  const ScheduleClear = () => {
+  router.post(
+    route('schoolResources.schedules.schedule.clear', { type, id: owner.id }),
+    {},
+    { onSuccess: () => console.log("✅ Schedule cleared!") }
+  );
+};
+
+
 
 
 
@@ -50,8 +58,9 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
             addVersion,
             resetScheduleVersions
     } = useScheduleVersion(sessions);
+    console.log(sessions);
     
-   console.log(getCurrentSchedule());
+   console.log(scheduleVersions);
    
     const { getModalState, openModal, closeModal, closeAllModals } = useModalState();
 
@@ -148,10 +157,14 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
                 }
             });
         }
+      const selectedSessions= getCurrentSchedule();
+      const datation = selectedSessions.datation;
+      console.log(!datation);
+      
+      const  [firstDate, secondDate] = datation ? datation.split("/"):[];
+      console.log(firstDate,secondDate);
+      
        
-        console.log(schedule);
-        
-        console.log(scheduleSessions);
         
     return (
     <>
@@ -176,13 +189,17 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
                         activeScheduleVersion={activeScheduleVersion}
                         scheduleVersionsLength={scheduleVersions.length-1}
                         scheduleLength={displayedSchedule.length}
-                        
+
+                        firstDate={firstDate}
+                        secondDate={secondDate}
+
                         handleClearSchedule={() => openModal('clearSchedule')}
                         handleSaveChanges={handleSaveChanges}
                         owner={owner}
                         name={name}
+                        date={getCurrentSchedule()}
                         numberHours={displayedSchedule.length * 2.5}
-                        handleExport = {() => exportToPDF("schedule",owner,name,getCurrentSchedule(),displayedSchedule)}
+                        handleExport = {() => exportToPDF("schedule",owner,name,firstDate,secondDate,displayedSchedule)}
                     />
 
 
@@ -242,7 +259,7 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
 
             {getModalState('clearSchedule') && (
                 <ClearScheduleModal 
-                    clearSchedule={clearSchedule}
+                    clearSchedule={ScheduleClear}
                     handleCancel={handleCancel}
                 />
             )}
