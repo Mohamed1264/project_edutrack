@@ -1,7 +1,7 @@
 
 import TableContainer from '../../../Components/table/TableContainer';
 import { ModalProvider } from "../../../utils/Context/ModalContext";
-import { ToastContainer } from "react-toastify";
+import toast from 'react-hot-toast';
 import { useEffect } from "react";
 import { successNotify } from "../../../Components/Common/Toast";
 import { TableProvider } from '../../../utils/Context/TableContext';
@@ -74,7 +74,7 @@ export default function Teachers({ users }) {
     <HumanRessourcesNav>
      
     <div className="py-6 px-8">
-      <ToastContainer pauseOnHover={false} closeButton={false} />
+      
       <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-50 mb-6">
         Teachers
       </h1>

@@ -77,6 +77,7 @@ const RenderSessionCell = ({
 
             
     };
+    
     const isSessionExits = matchingSession?.id;
     const session = isSessionExits ? matchingSession :  newSession
    
@@ -111,7 +112,7 @@ const getClassName = (sessionIndex , dayIndex ,isSessionExits,entity , daysLengt
         `
         col-start-${sessionIndex + 2} row-start-${dayIndex + 2} 
                 ${!isSessionExits && 'hover:bg-indigo-50 dark:hover:bg-indigo-900/20'}
-                ${(sessionIndex === 1 || ( entity !== 'groups' && sessionIndex === 3 )) && 'mr-2'}  
+                ${(sessionIndex === 1 || ( entity !== 'groups' )) && 'mr-2'}  
                 ${isLastDay && isOddSession && 'rounded-br-lg'}
                 ${isLastDay && isEvenSession && 'rounded-bl-lg'}
                 ${isLastDay && isLastSession && 'rounded-b-lg'}

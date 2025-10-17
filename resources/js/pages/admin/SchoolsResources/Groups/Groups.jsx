@@ -1,6 +1,6 @@
 import TableContainer from '../../../../Components/table/TableContainer'
 import { ModalProvider } from '../../../../utils/Context/ModalContext';
-import { ToastContainer } from "react-toastify";
+import toast from 'react-hot-toast';
 import { useEffect } from "react";
 import { successNotify } from "../../../../Components/Common/Toast";
 import { TableProvider } from '../../../../utils/Context/TableContext';
@@ -73,7 +73,7 @@ console.log("Groups data:", groups);
   return (
     <SchoolResourcesLayout>
       <div className="py-6 px-8">
-        <ToastContainer pauseOnHover={false} closeButton={false} />
+        
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-50">
             Groups

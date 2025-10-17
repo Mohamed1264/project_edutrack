@@ -1,6 +1,6 @@
 import { Ruler, ArrowLeft } from "lucide-react";
 import { useForm } from "@inertiajs/react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { Form, FormContainer } from "../../../Components/form/GlobalComponents";
 import { TextField } from "../../../Components/form/Inputs";
 import ConfirmAddModal from "../../../Components/Modals/ConfirmAdding";
@@ -87,7 +87,7 @@ export default function AddLevel() {
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Add New Level</h1>
         </div>
       </div>
-      <ToastContainer pauseOnHover={false} closeButton={false} />
+      
       <Form 
         submitBtnIsDisabled={isSubmitDisabled()}
         submitBtnTitle={'Add Level'}

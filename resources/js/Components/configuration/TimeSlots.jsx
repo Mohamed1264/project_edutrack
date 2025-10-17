@@ -5,7 +5,7 @@ import CustomTimePicker from "../form/CustomTimePicker"
 import { Clock,  Lock,  Plus,  Trash2 } from "lucide-react"
 import DeleteModal from "../Modals/DeleteModal"
 import { dangerNotify, successNotify } from "../Common/Toast"
-import { ToastContainer,toast } from "react-toastify"
+import toast from 'react-hot-toast'
 import {route} from 'ziggy-js'
 import DotLoader from "../Loader/DotLoader"
 export default function TimeSlots({timeSlotByTypes,timeSlotsTypes}){

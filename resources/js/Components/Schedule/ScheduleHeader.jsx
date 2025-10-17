@@ -1,4 +1,4 @@
-import { ToastContainer } from "react-toastify";
+import toast from 'react-hot-toast';
 import { ArrowLeft, ArrowRight, Trash2, Save, Download } from "lucide-react";
 import { useState } from "react";
 
@@ -33,7 +33,6 @@ export default function ScheduleHeader({handlePreviousVersion,handleExport, hand
                               ({numberHours} <span className="text-gray-500 text-sm">hours</span>)
                             </h1>
                         </div>
-                        <ToastContainer pauseOnHover={false} closeButton={false} />
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-2">
                                 <button 

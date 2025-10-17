@@ -51,7 +51,7 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
             resetScheduleVersions
     } = useScheduleVersion(sessions);
     
-   console.log(scheduleVersions.length);
+   console.log(getCurrentSchedule());
    
     const { getModalState, openModal, closeModal, closeAllModals } = useModalState();
 
@@ -59,20 +59,19 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
     const versioning = {addVersion,resetScheduleVersions}
     
     const {
-            schedule,
-            setSchedule,
-            selectedSession,
-            setSelectedSession,
-            isScheduleClearedTemporarly,
-            modifySession,
-            deleteSession,
-            restoreToOriginal,
-            restoreSession,
-            clearSchedule,
-            restoreSchedule,
-            handleCancel,
-    } = useSessionManagement(getCurrentSchedule() , modal, versioning);
-    
+        schedule,
+        setSchedule,
+        selectedSession,
+        setSelectedSession,
+        isScheduleClearedTemporarly,
+        modifySession,
+        deleteSession,
+        restoreToOriginal,
+        restoreSession,
+        clearSchedule,
+        restoreSchedule,
+        handleCancel,
+    } = useSessionManagement(getCurrentSchedule(), modal, versioning);
     const handleRowRightClick = (cell,e) => rightClick(cell,e,selectedSession,setSelectedSession,setContextMenuPosition,openModal);
     
     const resetContextMenu = useCallback(() => {
@@ -118,26 +117,41 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
 
         }
 
-        const handleSaveChanges = ()=>{
-            
-            router.post(route('schedules.save'),{
-                sessions:schedule
+        const handleSaveChanges = () => {
+            const sessionsToSave = Array.isArray(schedule) ? schedule : schedule.schedule || [];
+            router.post(route('schedules.save'), {
+                sessions: sessionsToSave
             }, {
-                onStart : ()=> setIsLoading(true),
-                onFinish : ()=>setIsLoading(false),
-                onSuccess : ()=> {
-                    successNotify('schedule saved seccuessfuly')
+                preserveState: true,
+                preserveScroll: true,
+                onStart: () => setIsLoading(true),
+                onFinish: () => setIsLoading(false),
+                onSuccess: (page) => {
+                    // Try to extract a message from the server response
+                    const serverMessage = page?.props?.message || page?.props?.flash?.success || (page && page.message) || 'Schedule saved successfully';
+                    const title = 'Schedule updated';
+                    const time = new Date().toLocaleString();
+
+                    const professionalMessage = (
+                        <div>
+                            <div className="font-semibold">{title}</div>
+                            <div className="text-sm text-gray-600">{serverMessage}</div>
+                            <div className="text-xs text-gray-500 mt-1">{time}</div>
+                        </div>
+                    );
+
+                    successNotify(professionalMessage, { autoClose: 4000 });
                     resetScheduleVersions();
-
                 },
-                onError : ()=> console.log('Error savign')
-                
-            })
-
+                onError: (errors) => {
+                    console.log('Error saving', errors);
+                }
+            });
         }
        
         console.log(schedule);
         
+        console.log(scheduleSessions);
         
     return (
     <>
@@ -168,8 +182,9 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
                         owner={owner}
                         name={name}
                         numberHours={displayedSchedule.length * 2.5}
-                        handleExport = {() => exportToPDF("schedule",owner,name,schedule.datation,displayedSchedule)}
+                        handleExport = {() => exportToPDF("schedule",owner,name,getCurrentSchedule(),displayedSchedule)}
                     />
+
 
                     <ScheduleContainer    
                         sessions={scheduleSessions} 
@@ -252,7 +267,6 @@ export default function Schedule({type,name,sessions,timeSlots,workingDays, owne
             )}
 
     </SchoolResourcesLayout>
-          
         </>
     );
 }

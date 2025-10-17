@@ -1,6 +1,6 @@
 import { Presentation, ArrowLeft } from "lucide-react";
 import { useForm, usePage } from "@inertiajs/react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { SelectField } from "../../../Components/form/Select";
 import { RatioField } from "../../../Components/form/RatioField";
 import { TextField } from "../../../Components/form/Inputs";
@@ -108,7 +108,7 @@ console.log(data);
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Edit Group</h1>
         </div>
       </div>
-      <ToastContainer pauseOnHover={false} closeButton={false} />
+      
       <Form
         submitBtnIsDisabled={isSubmitDisabled()}
         submitBtnTitle={'Update Group'}

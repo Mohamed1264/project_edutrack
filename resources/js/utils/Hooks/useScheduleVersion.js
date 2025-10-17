@@ -16,9 +16,11 @@ const useScheduleVersions = (initialSchedule) => {
     let currentstartDate=null;
     let DateEnd=null
     data.forEach((row, index) => {
-      const rowEndDate = row.raw.version_end_date
+      console.log(row.raw);   
+      const rowEndDate = row.raw
         ? new Date(row.raw.version_end_date)
         : null;
+        
       let endDate = row.raw.version_end_date
        DateEnd=currentEndDate ? currentEndDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
       
@@ -28,14 +30,19 @@ const useScheduleVersions = (initialSchedule) => {
         
         currentstartDate=row.raw.version_start_date
       }
+      console.log(rowStartDate >currentEndDate );
+
+        
       // أول مرة نحدد currentEndDate
-      if (currentEndDate === null) {
+      if (currentEndDate === null  ) {
         currentEndDate = rowEndDate;
         currentVersion.push(row);
-      } else if (
-        rowEndDate < currentEndDate || // نهاية أصغر → نسخة جديدة
-        rowStartDate < currentEndDate // البداية أصغر من نهاية النسخة الحالية → نسخة جديدة
+      }
+      if (
+        rowEndDate <currentEndDate || // نهاية أصغر → نسخة جديدة
+        rowStartDate <= currentEndDate // البداية أصغر من نهاية النسخة الحالية → نسخة جديدة
       ) {
+        
         // close current version
         versions.push({
           datation:`${currentstartDate}/${DateEnd}`, 

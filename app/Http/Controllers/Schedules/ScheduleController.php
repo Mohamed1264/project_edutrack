@@ -276,7 +276,7 @@ public function save(Request $request){
         }
     }
 
-    return back()->with('success','sessions saved seccussfuly');
+    return back();
 
 
 }
@@ -294,9 +294,14 @@ public function clearSchedule (Request $request){
     $isExists = Schedule::where($foreginKey,$id)
     ->where('version_end_date',null)->exists();
     if ($isExists) {
+        if ($request->wantsJson() || $request->header('X-Inertia')) {
+            return response()->json(['success' => false, 'message' => 'Schedule already empty'], 200);
+        }
         return to_route('schoolResources.schedules.list',$type)->with('error','schedule already empty');
     }
-    Schedule::where($foreginKey,$id)->update(['version_end_date' => now()]);
+     
+    Schedule::where($foreginKey,$id)->delete();
+
     return to_route('schoolResources.schedules.list',$type)->with('success','schedule cleared successfuly');
    
 }

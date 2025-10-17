@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "@inertiajs/react";
 import { Upload, File } from "lucide-react";
-import { ToastContainer } from "react-toastify";
+import toast from 'react-hot-toast';
 
 import { Form, FormContainer } from "../../../../Components/form/GlobalComponents";
 import { CustomSelect } from "../../../../Components/form/CustomSelect";
@@ -46,7 +46,7 @@ export default function ImportStudents({ groups }) {
 
   return (
     <>
-      <ToastContainer pauseOnHover={false} closeButton={false} />
+      
       <Form
         submitBtnIsDisabled={processing}
         submitBtnTitle="Import Students"

@@ -56,10 +56,34 @@ export default function SchedulesList ({data,type,name,key}) {
     const clearSchedule = () => {
         setDisplayedModal(false)
         router.post(
-            route('schoolResources.schedules.schedule.clear', {type:type,id:selectedSchedule?.id},),   
+            route('schoolResources.schedules.schedule.clear', {type:type,id:selectedSchedule?.id}),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onStart: () => {},
+                onSuccess: (page) => {
+                    // If backend returned JSON the page props may not contain message; try to read it then fall back
+                    const successMessage = page?.props?.flash?.success || (page && page.message) || 'Schedule cleared successfully';
+                    // Use a simple alert or toast - try to use global toast if available
+                    try {
+                        const { successNotify } = require('../../../../Components/Common/Toast');
+                        if (typeof successNotify === 'function') {
+                            successNotify(successMessage);
+                        } else {
+                            alert(successMessage);
+                        }
+                    } catch (err) {
+                        alert(successMessage);
+                    }
+                    setSelectedSchudele(null)
+                    setDisplayedModal(false)
+                },
+                onError: (errors) => {
+                    console.error('Error clearing schedule', errors);
+                }
+            }
         )
-        setSelectedSchudele(null)
-        setDisplayedModal(false)
     }
 
     return (

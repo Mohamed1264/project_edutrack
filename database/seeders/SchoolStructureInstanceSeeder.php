@@ -18,39 +18,38 @@ class SchoolStructureInstanceSeeder extends Seeder
                  'school_id'=>1,
                  'parent_id'=>null,
                  'school_structure_unit_id'=>1,
-                 'name'=>'TS'
+                 'name'=>'Technicien specialise'
             ],
             [
                 'school_id'=>1,
                 'parent_id'=>null,
                 'school_structure_unit_id'=>1,
-                'name'=>'T'
+                'name'=>'Technicien'
            ],
-            [
-                        'school_id'=>1,
-                        'parent_id'=>null,
-                        'school_structure_unit_id'=>1,
-                        'name'=>'S'
-            ],
             [
                     'school_id'=>1,
                     'parent_id'=>null,
                     'school_structure_unit_id'=>1,
-                    'name'=>'Q'
+                    'name'=>'Qualifie'
             ],
             [
                 'school_id'=>1,
                 'parent_id'=>1,
                 'school_structure_unit_id'=>2,
-                'name'=>'DD'
+                'name'=>'developpement digital'
         ],
-        [
-            'school_id'=>1,
-            'parent_id'=>1,
-            'school_structure_unit_id'=>2,
-            'name'=>'ID'
-    ],
-
+ [
+                'school_id' => 1,
+                'parent_id' => 1,
+                'school_structure_unit_id' => 2,
+                'name' => 'Gestion des Entreprises',
+            ],
+            [
+                'school_id' => 1,
+                'parent_id' => 1,
+                'school_structure_unit_id' => 2,
+                'name' => 'Génie Climatique',
+            ],
 
         ]);
     }

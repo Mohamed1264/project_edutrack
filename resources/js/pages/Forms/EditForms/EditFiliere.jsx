@@ -1,6 +1,6 @@
 import { PencilRuler, Ruler, ArrowLeft } from "lucide-react";
 import { useForm, usePage } from "@inertiajs/react";
-import { ToastContainer, toast } from "react-toastify";
+import toast from 'react-hot-toast';
 import { TextField } from "../../../Components/form/Inputs";
 import { SelectField } from "../../../Components/form/Select";
 import { Form, FormContainer } from "../../../Components/form/GlobalComponents";
@@ -110,7 +110,7 @@ export default function EditFiliere() {
           </div>
         </div>
 
-        <ToastContainer pauseOnHover={false} closeButton={false} />
+        
 
         <Form
           submitBtnIsDisabled={isSubmitDisabled()}

@@ -6,7 +6,11 @@ import { successNotify } from '../../Components/Common/Toast'; // Adjust import 
 export const useSessionManagement = (initialSchedule = [],modal, versioning ) => {
     const {closeModal,closeAllModals} = modal;
     const {addVersion,resetScheduleVersions} = versioning;
-  const [schedule, setSchedule] = useState(initialSchedule);
+  // Ensure schedule state is always an array even if initialSchedule is an object with a `schedule` property
+  const initial = Array.isArray(initialSchedule)
+    ? initialSchedule
+    : (initialSchedule && Array.isArray(initialSchedule.schedule) ? initialSchedule.schedule : []);
+  const [schedule, setSchedule] = useState(initial);
   const [selectedSession, setSelectedSession] = useState(null);
   const [selectedSessionToCopy, setSelectedSessionToCopy] = useState(null);
   const [isScheduleClearedTemporarly, setIsScheduleClearedTemporarly] = useState({
@@ -16,32 +20,25 @@ export const useSessionManagement = (initialSchedule = [],modal, versioning ) =>
 });
    
 
-const modifySession = (e, sessionState) => {
+  const modifySession = (e, sessionState) => {
   e.preventDefault();
-  console.log(sessionState);
-  
-  
+
   // Determine action based on is_saved status
   const updatedSession = {
       ...sessionState,
       action: sessionState.is_saved ? 'update' : 'create'
   };
 
+  const current = Array.isArray(schedule) ? schedule : (schedule && Array.isArray(schedule.schedule) ? schedule.schedule : []);
+
   const newSchedule = [
-      ...schedule.filter(session => session.id !== sessionState.id),
+      ...current.filter(session => session.id !== sessionState.id),
       updatedSession
   ];
-  
+
   setSchedule(newSchedule);
   addVersion(newSchedule);
   setSelectedSession(null);
-  
-  // // Show appropriate success message
-  // const message = sessionState.is_saved 
-  //     ? 'Session updated successfully' 
-  //     : 'Session created successfully';
-  // successNotify(message);
-  
   handleCancel();
   return newSchedule;
 };
@@ -64,11 +61,12 @@ const modifySession = (e, sessionState) => {
 
     if (!selectedSession) return schedule;
     let newSchedule;
+    const current = Array.isArray(schedule) ? schedule : (schedule && Array.isArray(schedule.schedule) ? schedule.schedule : []);
 
     if (!selectedSession.is_saved) {
-      newSchedule = schedule.filter(session => session.id !== selectedSession.id );
+      newSchedule = current.filter(session => session.id !== selectedSession.id );
 
-    }else {
+    } else {
       const updatedSession = {
         ...selectedSession,
         raw : {
@@ -78,7 +76,7 @@ const modifySession = (e, sessionState) => {
         action : 'delete' 
       };
       
-      newSchedule = schedule.map(session => session.id === selectedSession.id ? updatedSession : session);
+  newSchedule = current.map(session => session.id === selectedSession.id ? updatedSession : session);
       console.log(newSchedule);
       
     }
@@ -92,7 +90,8 @@ const modifySession = (e, sessionState) => {
 
   // Restore a session to its original state
   const restoreToOriginal = (idSession) => {
-    const sessionToRestore = schedule.find(session => session.idSession === idSession);
+    const current = Array.isArray(schedule) ? schedule : (schedule && Array.isArray(schedule.schedule) ? schedule.schedule : []);
+    const sessionToRestore = current.find(session => session.idSession === idSession);
     
     if (!sessionToRestore) return schedule;
     
@@ -109,14 +108,13 @@ const modifySession = (e, sessionState) => {
       original_room_name: null,
       original_type: null
     };
-
     const newSchedule = [
-      ...schedule.filter(session => session.idSession !== idSession),
+      ...current.filter(session => session.idSession !== idSession),
       updatedSession
     ];
     
     setSchedule(newSchedule);
-    versioning.addVersion(newSchedule);
+    addVersion(newSchedule);
     successNotify('Session restored successfully');
     closeAllModals();
     return newSchedule;
@@ -124,7 +122,8 @@ const modifySession = (e, sessionState) => {
 
   // Restore a temporary session to active
   const restoreSession = (idSession) => {
-    const sessionToRestore = schedule.find(session => session.idSession === idSession);
+    const current = Array.isArray(schedule) ? schedule : (schedule && Array.isArray(schedule.schedule) ? schedule.schedule : []);
+    const sessionToRestore = current.find(session => session.idSession === idSession);
     
     if (!sessionToRestore) return schedule;
     
@@ -137,10 +136,10 @@ const modifySession = (e, sessionState) => {
     };
 
     const newSchedule = [
-      ...schedule.filter(session => session.idSession !== idSession),
+      ...current.filter(session => session.idSession !== idSession),
       updatedSession
     ];
-    
+
     setSchedule(newSchedule);
     addVersion(newSchedule);
     successNotify('Session restored successfully');
@@ -165,7 +164,8 @@ const modifySession = (e, sessionState) => {
         start_date,
         end_date
       });
-      const newSchedule = schedule.map(session => ({
+      const current = Array.isArray(schedule) ? schedule : (schedule && Array.isArray(schedule.schedule) ? schedule.schedule : []);
+      const newSchedule = current.map(session => ({
         ...session, 
         status: 'deleted', 
         start_date, 
@@ -189,7 +189,8 @@ const modifySession = (e, sessionState) => {
 
   // Restore the entire schedule
   const restoreSchedule = () => {
-    const newSchedule = schedule.map(session => ({
+    const current = Array.isArray(schedule) ? schedule : (schedule && Array.isArray(schedule.schedule) ? schedule.schedule : []);
+    const newSchedule = current.map(session => ({
       ...session, 
       status: 'active', 
       start_date: null, 
