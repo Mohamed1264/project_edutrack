@@ -13,7 +13,8 @@ class WeekDaySeeder extends Seeder
      */
     public function run(): void
     {
-        $days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        // Traduction des jours de la semaine en français
+        $days = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
         foreach($days as $day){
             WeekDay::create([
                 'day_name' =>$day
